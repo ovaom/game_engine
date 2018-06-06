@@ -6,7 +6,8 @@ ip = '192.168.4.1'
 inPort = 9001
 buffer_size = 1024
 
-soundObject = [ {"active": 0, "maxPreset": 5, "currentPreset": 0} for i in range(0, 4) ]
+soundObject = [ {"active": 0, "plateau": False, "maxPreset": 5, "currentPreset": 0} for i in range(0, 4) ]
+objectOnBoard = [False, False, False, False]
 
 def sendOsc(msg) :
     print "sending data: ", msg
@@ -47,7 +48,15 @@ while True:
         raw_data = my_socket.recv(buffer_size)
         data = OSC.decodeOSC(raw_data)
         print(data)
-        if "params" in data[0] :
+        
+        if "plateau" in data[0] :
+            k = 0
+            for i in range(2,6):
+                objectOnBoard[k] = data[i]
+                k += 1
+            print (objectOnBoard)
+
+        elif "params" in data[0] :
             objId = int(data[0][8])
             msg.append(objId)
             msg.append(soundObject[objId]["currentPreset"])
@@ -66,7 +75,10 @@ while True:
 
         elif "state" in data[0] :
             objId = int(data[0][8])
-            soundObject[objId]["state"] = data[2]
+            if (objectOnBoard[objId]) :
+                soundObject[objId]["state"] = 1
+            else:
+                soundObject[objId]["state"] = data[2]
             msg.append(objId)
             msg.append(soundObject[objId]["state"])
             sendOsc(msg)
