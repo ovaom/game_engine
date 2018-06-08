@@ -47,7 +47,7 @@ while True:
     try:
         raw_data = my_socket.recv(buffer_size)
         data = OSC.decodeOSC(raw_data)
-        print(data)
+        # print(data)
         
         if "plateau" in data[0] :
             k = 0
@@ -59,8 +59,8 @@ while True:
         elif "params" in data[0] :
             objId = int(data[0][8])
             msg.append(objId)
-            msg.append(soundObject[objId]["currentPreset"])
             msg.append(soundObject[objId]["active"])
+            msg.append(soundObject[objId]["currentPreset"])
             for i in range(2, len(data)) :
                 msg.append(data[i])
             sendOsc(msg)
@@ -68,19 +68,16 @@ while True:
         elif "presetChange" in data[0] :
             objId = int(data[0][8])
             soundObject[objId]["currentPreset"] = (soundObject[objId]["currentPreset"] + 1) % soundObject[objId]["maxPreset"]
-            # msg.append(objId)
-            # msg.append(soundObject[objId]["state"])
-            # msg.append(soundObject[objId]["currentPreset"])
             print ("Preset is now " + str(soundObject[objId]["currentPreset"]))
 
         elif "state" in data[0] :
             objId = int(data[0][8])
             if (objectOnBoard[objId]) :
-                soundObject[objId]["state"] = 1
+                soundObject[objId]["active"] = 1
             else:
-                soundObject[objId]["state"] = data[2]
+                soundObject[objId]["active"] = data[2]
             msg.append(objId)
-            msg.append(soundObject[objId]["state"])
+            msg.append(soundObject[objId]["active"])
             sendOsc(msg)
 
     except socket.error:
