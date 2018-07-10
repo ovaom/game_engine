@@ -1,1 +1,1 @@
-python python/game_engine.py
+/usr/bin/pd /home/pi/Documents/ovaom/puredata/main3.pd & /usr/bin/python /home/pi/Documents/ovaom/python/game_engine.py

@@ -1,6 +1,7 @@
 import socket
 import OSC
 import re
+import time
 
 ip = '192.168.4.1'
 inPort = 9001
@@ -8,6 +9,8 @@ buffer_size = 1024
 
 soundObject = [ {"active": 0, "plateau": False, "maxPreset": 5, "currentPreset": 0} for i in range(0, 4) ]
 objectOnBoard = [False, False, False, False]
+lastSeen = [time.time(), time.time(), time.time(), time.time()]
+timeout = 3
 
 def sendOsc(msg) :
     print "sending data: ", msg
@@ -64,11 +67,13 @@ while True:
             for i in range(2, len(data)) :
                 msg.append(data[i])
             sendOsc(msg)
+            lastSeen[objId] = time.time();
 
         elif "presetChange" in data[0] :
             objId = int(data[0][8])
             soundObject[objId]["currentPreset"] = (soundObject[objId]["currentPreset"] + 1) % soundObject[objId]["maxPreset"]
             print ("Preset is now " + str(soundObject[objId]["currentPreset"]))
+            lastSeen[objId] = time.time();
 
         elif "state" in data[0] :
             objId = int(data[0][8])
@@ -79,7 +84,18 @@ while True:
             msg.append(objId)
             msg.append(soundObject[objId]["active"])
             sendOsc(msg)
-
+            lastSeen[objId] = time.time();
+            
     except socket.error:
         pass
 
+    for i in range(0,4):
+        if lastSeen[i] < time.time() - timeout :
+            objId = i
+            if soundObject[objId]["active"] :
+                soundObject[objId]["active"] = 0
+                msg.append(objId)
+                msg.append(soundObject[objId]["active"])
+                sendOsc(msg)
+                print "object timeout " + str(objId) 
+        i += 1
