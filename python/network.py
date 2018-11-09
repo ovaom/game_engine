@@ -46,14 +46,14 @@ class Network(object):
         return (msg)
 
     def sendOsc(self, msg) :
-        print ("sending data: ", msg)
+        # print ("sending data: ", msg)
         try:
             self.client.send(msg)
             msg.clearData();
         except Exception as e:
-            print ("Send Error")
-            print ("message not sent:", msg)
-            print (e)
+            # print ("Send Error! message not sent:")
+            # print (msg)
+            # print (e)
             msg.clearData();
 
     def sendParams(self, data, instrument):

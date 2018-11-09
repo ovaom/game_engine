@@ -11,7 +11,10 @@ if __name__ == "__main__":
     net = network.Network()
     jungle = jungleMode.Jungle(net)
     puzzle = puzzleMode.Puzzle()
+    MODE = "PUZZLE"
 
     while True:
-        # jungle.run(net)
-        puzzle.run(net)
+        if MODE == "JUNGLE":
+            jungle.run(net)
+        elif MODE == "PUZZLE":
+            puzzle.run(net)
