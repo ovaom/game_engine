@@ -1,0 +1,340 @@
+#N canvas 20 23 1660 920 10;
+#X obj 33 201 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
+-1;
+#X obj 296 203 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 565 201 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 11 235 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
+-1;
+#X obj 822 205 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 274 236 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 538 235 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 54 1419 sequencer2;
+#X obj 741 1434 *~ 1;
+#X floatatom 850 1359 5 0 0 0 - - -, f 5;
+#X obj 923 1324 + 80;
+#X obj 473 1310 sig~;
+#X obj 473 1332 lop~ 5;
+#X obj 571 1361 -~ 1;
+#X obj 521 1458 *~;
+#X obj 632 1423 *~;
+#X obj 571 1383 abs~;
+#X obj 713 1270 catch~ samp_voice_out;
+#X obj 727 1305 *~ 1;
+#X obj 923 1302 * 15;
+#X text 706 1230 get the output from voices and feed it into rev3~
+\, a fun reverb included with Pd;
+#X obj 1185 119 detent 0.075;
+#X obj 1234 1322 vsl 15 128 0 1 0 0 empty empty empty 0 -9 0 10 -262144
+-1 -1 6350 1;
+#X obj 1292 1322 vsl 15 128 0 1 0 0 empty empty empty 0 -9 0 10 -262144
+-1 -1 8890 1;
+#X obj 1358 1322 vsl 15 128 0 1 0 0 empty empty empty 0 -9 0 10 -262144
+-1 -1 12700 1;
+#X obj 1420 1322 vsl 15 128 0 1 0 0 empty empty empty 0 -9 0 10 -262144
+-1 -1 6350 1;
+#X obj 1345 1413 unpack;
+#X floatatom 1345 1442 5 0 0 0 - - -, f 5;
+#X floatatom 1384 1442 5 0 0 0 - - -, f 5;
+#X text 1349 1493 keyboard;
+#X text 1321 1268 knobs;
+#X text 1233 1266 TESTS;
+#X obj 1520 1413 unpack;
+#X floatatom 1520 1443 5 0 0 0 - - -, f 5;
+#X floatatom 1567 1445 5 0 0 0 - - -, f 5;
+#X obj 1520 1511 pack;
+#X obj 1567 1472 / 1;
+#X text 1520 1319 key number;
+#X msg 1564 1337 14;
+#X obj 1520 1379 pack 1 100;
+#X obj 1519 1416 s lofi-notes;
+#X obj 1346 1514 r lofi-notes;
+#X obj 1520 1470 + 60;
+#X msg 1527 1337 13;
+#X obj 1134 1465 s lofi-knob1;
+#X obj 1227 1465 s lofi-knob2;
+#X obj 1415 1465 s lofi-knob4;
+#X obj 1321 1465 s lofi-knob3;
+#X obj 472 1279 r lofi-knob3;
+#X obj 901 1265 r lofi-knob2;
+#X obj 1185 85 r lofi-knob1;
+#X obj 1235 162 s lofi-knob1-detent;
+#X obj 296 225 sampler-voice-lofi ./lofi/8.wav 7;
+#X obj 565 225 sampler-voice-lofi ./lofi/11.wav 10;
+#X obj 822 226 sampler-voice-lofi ./lofi/14.wav 13;
+#X obj 11 258 sampler-voice-lofi ./lofi/15.wav 14;
+#X obj 274 259 sampler-voice-lofi ./lofi/20.wav 19;
+#X obj 538 259 sampler-voice-lofi ./lofi/23.wav 22;
+#X obj 26 11 inlet;
+#X obj 123 11 inlet;
+#X floatatom 123 67 5 0 0 0 - - -, f 5;
+#X obj 123 37 unpack f f f f f, f 18;
+#X floatatom 218 67 5 0 0 0 - - -, f 5;
+#X floatatom 313 67 5 0 0 0 - - -, f 5;
+#X floatatom 407 67 5 0 0 0 - - -, f 5;
+#X floatatom 503 67 5 0 0 0 - - -, f 5;
+#X obj 26 88 s lofi-notes;
+#X obj 123 87 s lofi-knob1;
+#X obj 218 87 s lofi-knob2;
+#X obj 313 87 s lofi-knob3;
+#X obj 407 87 s lofi-knob4;
+#X obj 503 87 s lofi-aux;
+#X obj 1138 1295 r lofi-knob1;
+#X obj 1232 1295 r lofi-knob2;
+#X obj 1327 1295 r lofi-knob3;
+#X obj 1420 1295 r lofi-knob4;
+#X obj 504 1520 outlet~;
+#X msg 69 1260 screenLine1 1: Pitch \; screenLine2 2: Reverb \; screenLine3
+3: Wet/Dry \; screenLine4 4: Decay \; aux = sequencer;
+#X obj 34 337 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
+-1;
+#X obj 354 337 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 679 337 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 994 335 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 12 372 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
+-1;
+#X obj 333 372 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 658 372 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X text 29 171 LoFi Piano samples;
+#X text 29 311 Cassette 808 samples;
+#X text 1038 260 -> adapt key number with MIDI note received;
+#X text 1038 277 (for instance in ocarina patch);
+#X obj 33 225 sampler-voice-lofi ./lofi/3.wav 2;
+#X text 1006 395 -> +100 for the cassette 808 samples;
+#X obj 34 360 sampler-voice-lofi ./cassette808/1.wav 102;
+#X obj 354 360 sampler-voice-lofi ./cassette808/15.wav 107;
+#X obj 994 358 sampler-voice-lofi ./cassette808/4.wav 113;
+#X obj 12 395 sampler-voice-lofi ./cassette808/3.wav 114;
+#X obj 333 395 sampler-voice-lofi ./cassette808/14.wav 119;
+#X obj 658 395 sampler-voice-lofi ./cassette808/9.wav 122;
+#X obj 34 467 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
+-1;
+#X obj 354 467 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 679 467 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 994 465 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 12 502 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
+-1;
+#X obj 333 502 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 658 502 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X text 29 441 Ukulele samples;
+#X obj 679 490 sampler-voice-lofi ./ukulele/5.wav 210;
+#X obj 994 488 sampler-voice-lofi ./ukulele/4.wav 213;
+#X obj 12 525 sampler-voice-lofi ./ukulele/3.wav 214;
+#X obj 333 525 sampler-voice-lofi ./ukulele/14.wav 219;
+#X obj 658 525 sampler-voice-lofi ./ukulele/9.wav 222;
+#X text 1006 525 -> +200 for the ukulele samples;
+#X msg 1603 1337 207;
+#X obj 354 490 sampler-voice-lofi ./ukulele/15.wav 207;
+#X obj 34 490 sampler-voice-lofi ./ukulele/3.wav 202;
+#X obj 34 596 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
+-1;
+#X obj 354 596 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 679 596 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 994 594 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 12 631 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
+-1;
+#X obj 333 631 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 658 631 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X text 29 570 Rhodes samples;
+#X obj 34 619 sampler-voice-lofi ./rhodes49/3.wav 302;
+#X obj 354 619 sampler-voice-lofi ./rhodes49/15.wav 307;
+#X obj 679 619 sampler-voice-lofi ./rhodes49/5.wav 310;
+#X obj 994 617 sampler-voice-lofi ./rhodes49/4.wav 313;
+#X obj 12 654 sampler-voice-lofi ./rhodes49/3.wav 314;
+#X obj 333 654 sampler-voice-lofi ./rhodes49/14.wav 319;
+#X obj 658 654 sampler-voice-lofi ./rhodes49/9.wav 322;
+#X text 1006 654 -> +300 for the rhodes samples;
+#X obj 34 736 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
+-1;
+#X text 29 710 Cello samples;
+#X text 1006 794 -> +400 for the rhodes samples;
+#X obj 357 736 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 34 759 sampler-voice-lofi ./cello/D3.wav 402;
+#X obj 357 759 sampler-voice-lofi ./cello/G2.wav 407;
+#X obj 683 736 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 683 759 sampler-voice-lofi ./cello/A#2.wav 410;
+#X obj 992 735 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 992 758 sampler-voice-lofi ./cello/C#3.wav 413;
+#X obj 13 765 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
+-1;
+#X obj 13 788 sampler-voice-lofi ./cello/D4.wav 414;
+#X obj 337 764 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 337 787 sampler-voice-lofi ./cello/G3.wav 419;
+#X obj 663 764 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 663 787 sampler-voice-lofi ./cello/A#3.wav 422;
+#X obj 700 1389 rev3~ 100 90 1000 20;
+#X obj 679 360 sampler-voice-lofi ./cassette808/10.wav 110;
+#X obj 34 877 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
+-1;
+#X obj 354 877 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 679 877 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 994 875 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 12 912 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
+-1;
+#X obj 333 912 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 658 912 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X text 29 851 Cassette 808 2 samples beat;
+#X text 1006 935 -> +500 for the cassette 808 2 samples beat;
+#X obj 658 935 sampler-voice-lofi ./cassette808/3.wav 522;
+#X obj 333 935 sampler-voice-lofi ./cassette808/1.wav 519;
+#X obj 12 935 sampler-voice-lofi ./cassette808/3.wav 514;
+#X obj 994 898 sampler-voice-lofi ./cassette808/1.wav 513;
+#X obj 679 900 sampler-voice-lofi ./cassette808/3.wav 510;
+#X obj 354 900 sampler-voice-lofi ./cassette808/1.wav 507;
+#X obj 34 900 sampler-voice-lofi ./cassette808/1.wav 502;
+#X obj 34 1016 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 357 1016 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 683 1016 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 992 1015 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 13 1045 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 337 1044 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 663 1044 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X text 29 990 String section samples;
+#X obj 34 1039 sampler-voice-lofi ./stringSection/D3.wav 602;
+#X obj 357 1039 sampler-voice-lofi ./stringSection/G2.wav 607;
+#X obj 683 1039 sampler-voice-lofi ./stringSection/A#2.wav 610;
+#X obj 992 1038 sampler-voice-lofi ./stringSection/C#3.wav 613;
+#X obj 13 1068 sampler-voice-lofi ./stringSection/D4.wav 614;
+#X obj 340 1067 sampler-voice-lofi ./stringSection/G3.wav 619;
+#X obj 668 1068 sampler-voice-lofi ./stringSection/A#3.wav 622;
+#X text 1006 1074 -> +600 for the string section samples;
+#X connect 0 0 89 0;
+#X connect 1 0 52 0;
+#X connect 2 0 53 0;
+#X connect 3 0 55 0;
+#X connect 4 0 54 0;
+#X connect 5 0 56 0;
+#X connect 6 0 57 0;
+#X connect 8 0 14 1;
+#X connect 9 0 146 2;
+#X connect 10 0 9 0;
+#X connect 11 0 12 0;
+#X connect 12 0 13 0;
+#X connect 12 0 14 0;
+#X connect 13 0 16 0;
+#X connect 14 0 76 0;
+#X connect 15 0 76 0;
+#X connect 16 0 15 0;
+#X connect 17 0 18 0;
+#X connect 18 0 15 1;
+#X connect 18 0 146 0;
+#X connect 18 0 146 1;
+#X connect 19 0 10 0;
+#X connect 21 0 51 0;
+#X connect 21 1 51 0;
+#X connect 21 2 51 0;
+#X connect 26 0 27 0;
+#X connect 26 1 28 0;
+#X connect 32 0 33 0;
+#X connect 32 1 34 0;
+#X connect 33 0 42 0;
+#X connect 34 0 36 0;
+#X connect 35 0 40 0;
+#X connect 36 0 35 1;
+#X connect 38 0 39 0;
+#X connect 39 0 32 0;
+#X connect 41 0 26 0;
+#X connect 42 0 35 0;
+#X connect 43 0 39 0;
+#X connect 48 0 11 0;
+#X connect 49 0 19 0;
+#X connect 50 0 21 0;
+#X connect 58 0 66 0;
+#X connect 59 0 61 0;
+#X connect 60 0 67 0;
+#X connect 61 0 60 0;
+#X connect 61 1 62 0;
+#X connect 61 2 63 0;
+#X connect 61 3 64 0;
+#X connect 61 4 65 0;
+#X connect 62 0 68 0;
+#X connect 63 0 69 0;
+#X connect 64 0 70 0;
+#X connect 65 0 71 0;
+#X connect 72 0 22 0;
+#X connect 73 0 23 0;
+#X connect 74 0 24 0;
+#X connect 75 0 25 0;
+#X connect 78 0 91 0;
+#X connect 79 0 92 0;
+#X connect 80 0 147 0;
+#X connect 81 0 93 0;
+#X connect 82 0 94 0;
+#X connect 83 0 95 0;
+#X connect 84 0 96 0;
+#X connect 97 0 113 0;
+#X connect 98 0 112 0;
+#X connect 99 0 105 0;
+#X connect 100 0 106 0;
+#X connect 101 0 107 0;
+#X connect 102 0 108 0;
+#X connect 103 0 109 0;
+#X connect 111 0 39 0;
+#X connect 114 0 122 0;
+#X connect 115 0 123 0;
+#X connect 116 0 124 0;
+#X connect 117 0 125 0;
+#X connect 118 0 126 0;
+#X connect 119 0 127 0;
+#X connect 120 0 128 0;
+#X connect 130 0 134 0;
+#X connect 133 0 135 0;
+#X connect 136 0 137 0;
+#X connect 138 0 139 0;
+#X connect 140 0 141 0;
+#X connect 142 0 143 0;
+#X connect 144 0 145 0;
+#X connect 146 0 8 0;
+#X connect 146 1 8 0;
+#X connect 146 2 8 0;
+#X connect 146 3 8 0;
+#X connect 148 0 163 0;
+#X connect 149 0 162 0;
+#X connect 150 0 161 0;
+#X connect 151 0 160 0;
+#X connect 152 0 159 0;
+#X connect 153 0 158 0;
+#X connect 154 0 157 0;
+#X connect 164 0 172 0;
+#X connect 165 0 173 0;
+#X connect 166 0 174 0;
+#X connect 167 0 175 0;
+#X connect 168 0 176 0;
+#X connect 169 0 177 0;
+#X connect 170 0 178 0;
