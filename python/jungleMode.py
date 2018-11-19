@@ -14,7 +14,7 @@ class Jungle(object):
     def run(self, net):        
         try:
             data = net.receiveOsc()
-            # print(data)
+            print(data)
         except socket.error:
             pass
         else:

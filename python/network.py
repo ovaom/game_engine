@@ -25,9 +25,9 @@ class Network(object):
             self.my_socket.settimeout(0.002)
             self.my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, self.buffer_size)
             print ('Plug : IP = ', ip,  'inPort = ', inPort,  'Buffer Size =', self.buffer_size)
-            return self.my_socket, self.buffer_size
-        except:
-            print ('Not connected')
+        except Exception as e:
+            print ('Not connected:')
+            print e
 
     def _connectClient(self):
         # Init OSC Client

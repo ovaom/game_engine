@@ -7,6 +7,8 @@ import json
 from pydub import AudioSegment
 from pydub.playback import play
 
+ASSETS_FOLDER = "/home/pi/Documents/ovaom/python/assets"
+
 class Puzzle(object):
     def __init__(self,):
         self.levelNum = 0
@@ -14,37 +16,34 @@ class Puzzle(object):
         self.step = "begin"
         self.params = {
                     "data": []
-                }
+        }
         self._instrument = [ {"active": 0, "maxPreset": 5, "currentPreset": 0} for i in range(0, 4) ]
         self._importJSON();
 
     def _importJSON(self):
-        print "importing json"
         jsonFile = open("/home/pi/Documents/ovaom/python/assets/puzzle.json", "r")
         fileAsString = jsonFile.read()
         self.puzzleData = json.loads(fileAsString)
         self.totalLevels = len(self.puzzleData)
-        print "json imported"
 
     def run(self, net):
         if self.step == "begin":
-            self._speakInstructions()
+            print "------------------------------------------"
+            print"Puzzle numero " + str(self.levelNum + 1)
+            play(AudioSegment.from_file(ASSETS_FOLDER + "/audio/" + str(self.levelNum + 1) + "/puzzle.mp3", format="mp3"))
+            self.step = "instructions"
+        if self.step == "instructions":
+            play(AudioSegment.from_file(ASSETS_FOLDER + "/audio/ecoute_le_modele.mp3", format="mp3"))
+            play(AudioSegment.from_file(ASSETS_FOLDER + "/audio/a_toi_de_jouer.mp3", format="mp3"))
             self.step = "play"
         if self.step == "play":
             self._play(net)
 
-    def _speakInstructions(self):
-        print "------------------------------------------"
-        print"Puzzle numero " + str(self.levelNum + 1)
-        print"Ecoute dabord le modele"
-        print" *modele* "
-        print"A toi de jouer maintenant!"
-        s1 = AudioSegment.from_file("assets/audio/" + str(self.levelNum + 1) + "/puzzle.mp3", format="mp3")
-        s2 = AudioSegment.from_file("assets/audio/ecoute_le_modele.mp3", format="mp3")
-        s3 = AudioSegment.from_file("assets/audio/a_toi_de_jouer.mp3", format="mp3")
-        play(s1)
-        play(s2)
-        play(s3)
+    def repeat(self):
+        self.step = "instructions"
+
+    def skipToNext(self):
+        self.levelNum += 1
 
     def _play(self, net):
         try:
@@ -53,7 +52,7 @@ class Puzzle(object):
             pass
         else:
             if "params" in data[0]:
-                # print data[2]
+                print data
                 net.sendParams(data, self._instrument)
                 self.params = {
                     "objectId": int(data[0][8]),
@@ -91,7 +90,7 @@ class Puzzle(object):
             
     def _failure(self):
         print "FAIL: play failure audio" 
-        self.step = "begin"
+        self.step = "play"
 
     def _success(self):
         print "SUCCESS: play success audio" 
