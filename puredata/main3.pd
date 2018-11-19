@@ -1,10 +1,10 @@
-#N canvas 476 23 1181 961 10;
+#N canvas 475 116 1181 904 10;
 #X declare -path abs;
 #X declare -path abs/Lo-Fi-Piano;
 #X declare -path abs/Chords-Roll;
 #X obj 657 113 s maxVolume;
 #X text 632 49 CONFIG SOUND DEVICES VOLUME;
-#N canvas 0 23 257 177 SDmaxVol 0;
+#N canvas 0 50 257 177 SDmaxVol 0;
 #X obj 29 100 /;
 #X msg 29 80 1;
 #X floatatom 80 123 5 0 0 0 - - -, f 5;
