@@ -10,7 +10,8 @@ from pydub.playback import play
 ASSETS_FOLDER = "/home/pi/Documents/ovaom/python/assets"
 
 class Puzzle(object):
-    def __init__(self,):
+    def __init__(self, gpio):
+        self.gpio = gpio
         self.levelNum = 0
         self.totalLevels = 1
         self.step = "begin"
@@ -27,23 +28,29 @@ class Puzzle(object):
         self.totalLevels = len(self.puzzleData)
 
     def run(self, net):
+        self.readGpio()        
         if self.step == "begin":
+            net.sendDspOFF()            
             print "------------------------------------------"
             print"Puzzle numero " + str(self.levelNum + 1)
             play(AudioSegment.from_file(ASSETS_FOLDER + "/audio/" + str(self.levelNum + 1) + "/puzzle.mp3", format="mp3"))
             self.step = "instructions"
+            net.sendDspON()
         if self.step == "instructions":
+            net.sendDspOFF()
             play(AudioSegment.from_file(ASSETS_FOLDER + "/audio/ecoute_le_modele.mp3", format="mp3"))
             play(AudioSegment.from_file(ASSETS_FOLDER + "/audio/a_toi_de_jouer.mp3", format="mp3"))
             self.step = "play"
+            net.sendDspON()
         if self.step == "play":
             self._play(net)
 
-    def repeat(self):
-        self.step = "instructions"
-
-    def skipToNext(self):
-        self.levelNum += 1
+    def readGpio(self):
+        if self.gpio.isRepeat:
+            self.step == "instructions"
+        if self.gpio.isSkip:
+            self.levelNum = (self.levelNum + 1) % self.totalLevels
+            self.step = "begin"
 
     def _play(self, net):
         try:

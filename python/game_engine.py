@@ -3,21 +3,27 @@
 # 
 
 import network
-# import GPIO
+import GPIO
 import jungleMode
 import puzzleMode
 
 if __name__ == "__main__":
    
+    game = {
+        "mode": "PUZZLE",
+    }
+    try:
+        GPIO = GPIO.InOut(game)
+    except Exception as e:
+        print "GPIO Error:"
+        print e        
     net = network.Network()
     jungle = jungleMode.Jungle(net)
-    puzzle = puzzleMode.Puzzle()
-    # GPIO = GPIO.GPIO()
-    MODE = "JUNGLE"
-
+    puzzle = puzzleMode.Puzzle(GPIO)
+    
     while True:
-        # GPIO.read()
-        if MODE == "JUNGLE":
+        GPIO.readVolumeKnob()
+        if game["mode"] == "JUNGLE":
             jungle.run(net)
-        elif MODE == "PUZZLE":
+        elif game["mode"] == "PUZZLE":
             puzzle.run(net)

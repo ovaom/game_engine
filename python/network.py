@@ -11,8 +11,12 @@ class Network(object):
     def __init__(self):
         self._connectServer()
         self._connectClient()
-        self._msg = OSC.OSCMessage()
+        self._msg = OSC.OSCMessage()        
+        self._mDspOn = OSC.OSCMessage()
+        self._mDspOff = OSC.OSCMessage()
         self._msg.setAddress("/play")
+        self._mDspOn.setAddress("/dspOn")
+        self._mDspOff.setAddress("/dspOff")
                 
     def _connectServer(self):    
         ip = '192.168.4.1'
@@ -72,3 +76,16 @@ class Network(object):
         self._msg.append(instrument[objId]["active"])
         self.sendOsc(self._msg)
 
+    def sendDspON(self):
+        try:
+            self.client.send(self._mDspOn)
+        except Exception as e:
+            print "Error sending /dspOn:"
+            print e
+
+    def sendDspOFF(self):
+        try:
+            self.client.send(self._mDspOff)
+        except Exception as e:
+            print "Error sending /dspOff:"
+            print e
