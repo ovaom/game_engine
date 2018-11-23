@@ -28,7 +28,7 @@ class Puzzle(object):
         self.totalLevels = len(self.puzzleData)
 
     def run(self, net):
-        self.readGpio()        
+        self._readGpio()
         if self.step == "begin":
             net.sendDspOFF()            
             print "------------------------------------------"
@@ -45,10 +45,10 @@ class Puzzle(object):
         if self.step == "play":
             self._play(net)
 
-    def readGpio(self):
-        if self.gpio.isRepeat:
-            self.step == "instructions"
-        if self.gpio.isSkip:
+    def _readGpio(self):
+        if self.gpio.repeatButton():
+            self.step = "instructions"
+        if self.gpio.skipButton():
             self.levelNum = (self.levelNum + 1) % self.totalLevels
             self.step = "begin"
 
