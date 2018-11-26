@@ -7,27 +7,22 @@ import GPIO
 import jungleMode
 import puzzleMode
 import volume
-import alsaaudio
+import threading
 
-if __name__ == "__main__":
-   
-    game = {
-        "mode": "JUNGLE",
-    }
-    try:
-        GPIO = GPIO.InOut(game)
-    except Exception as e:
-        print "GPIO Error:"
-        print e
-    v = volume.VolumeCtrl(GPIO)
+if __name__ == "__main__":   
+    game = {"mode": "JUNGLE",}
+    
     net = network.Network()
+    GPIO = GPIO.InOut(game)
+    v = volume.VolumeCtrl(GPIO)
     jungle = jungleMode.Jungle(net)
-    puzzle = puzzleMode.Puzzle(GPIO)
+    puzzle = puzzleMode.Puzzle(net, GPIO)
+    # threading.Thread(target=v.mainVolume_RW).start()
     
     while True:
-        v.mainVolume_RW()
+        # v.mainVolume_RW()
         GPIO.getGameMode(game)
         if game["mode"] == "JUNGLE":
-            jungle.run(net)
+            jungle.run()
         elif game["mode"] == "PUZZLE":
-            puzzle.run(net)
+            puzzle.run()

@@ -71,8 +71,8 @@ class InOut(object):
     def __init__(self, game):
         self._initADC()
         self._initGPIO()
-        self._readADC()
-        self._test()
+        # self._readADC()
+        # self._test()
         self.volume = {
             "prev": 0,
             "curr": 0
@@ -81,12 +81,14 @@ class InOut(object):
         self.prevSkip = False
 
     def _initADC(self):
+        print "Starting ADC"
         self.adc = Adafruit_ADS1x15.ADS1115()
         self.GAIN = 1
-        print('| {0:>6} | {1:>6} | {2:>6} | {3:>6} |'.format(*range(4)))
-        print('-' * 37)
+        # print('| {0:>6} | {1:>6} | {2:>6} | {3:>6} |'.format(*range(4)))
+        # print('-' * 37)
         
     def _initGPIO(self):
+        print "GPIO setup"
         GPIO.setwarnings(False)
         GPIO.setmode(GPIO.BCM)
         # LED pin definition

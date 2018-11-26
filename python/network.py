@@ -28,9 +28,9 @@ class Network(object):
             self.my_socket.setblocking(0)
             self.my_socket.settimeout(0.002)
             self.my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, self.buffer_size)
-            print ('Plug : IP = ', ip,  'inPort = ', inPort,  'Buffer Size =', self.buffer_size)
+            print 'OSCServer : IP = ', ip,  'inPort = ', inPort,  'Buffer Size =', self.buffer_size
         except Exception as e:
-            print ('Not connected:')
+            print ('Server connection error:')
             print e
 
     def _connectClient(self):
