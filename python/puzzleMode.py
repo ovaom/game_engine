@@ -6,20 +6,29 @@ import socket
 import json
 from pydub import AudioSegment
 from pydub.playback import play
+from AudioPlay import AudioPlay
 
 ASSETS_FOLDER = "/home/pi/Documents/ovaom/python/assets"
 
+# Steps
+START           = 0
+INSTRUCTIONS    = 1
+PLAYLEVEL       = 2
+
 class Puzzle(object):
-    def __init__(self, gpio):
+    
+    def __init__(self, net, gpio):
+        self.net = net
         self.gpio = gpio
         self.levelNum = 0
         self.totalLevels = 1
-        self.step = "begin"
+        self.step = START
         self.params = {
                     "data": []
         }
         self._instrument = [ {"active": 0, "maxPreset": 5, "currentPreset": 0} for i in range(0, 4) ]
         self._importJSON();
+        self._audio = AudioPlay()
 
     def _importJSON(self):
         jsonFile = open("/home/pi/Documents/ovaom/python/assets/puzzle.json", "r")
@@ -27,48 +36,81 @@ class Puzzle(object):
         self.puzzleData = json.loads(fileAsString)
         self.totalLevels = len(self.puzzleData)
 
-    def run(self, net):
-        self._readGpio()
-        if self.step == "begin":
-            net.sendDspOFF()            
-            print "------------------------------------------"
-            print"Puzzle numero " + str(self.levelNum + 1)
-            play(AudioSegment.from_file(ASSETS_FOLDER + "/audio/" + str(self.levelNum + 1) + "/puzzle.mp3", format="mp3"))
-            self.step = "instructions"
-            net.sendDspON()
-        if self.step == "instructions":
-            net.sendDspOFF()
-            play(AudioSegment.from_file(ASSETS_FOLDER + "/audio/ecoute_le_modele.mp3", format="mp3"))
-            play(AudioSegment.from_file(ASSETS_FOLDER + "/audio/a_toi_de_jouer.mp3", format="mp3"))
-            self.step = "play"
-            net.sendDspON()
-        if self.step == "play":
-            self._play(net)
+    def run(self):
+        self.__getGPIO__()
+        if self.step == START:
+            self._playStart()
+        if self.step == INSTRUCTIONS:            
+            self._playInstructions()
+        if self.step == PLAYLEVEL:
+            self._playGame()
 
-    def _readGpio(self):
+    def __getGPIO__(self):
+        input = False
         if self.gpio.repeatButton():
-            self.step = "instructions"
+            self.step = INSTRUCTIONS
+            input = True
         if self.gpio.skipButton():
             self.levelNum = (self.levelNum + 1) % self.totalLevels
-            self.step = "begin"
+            self.step = START
+            input = True
+        return input
 
-    def _play(self, net):
+
+# *****************************************************************************
+#   Game states : playStart, playInstructions, playGame :
+# *****************************************************************************
+
+    def _playStart(self):
+        self.net.sendDspOFF()            
+        print "------------------------------------------"
+        print"Puzzle numero " + str(self.levelNum + 1)
+        self._audio.playback(ASSETS_FOLDER + "/audio/" + str(self.levelNum + 1) + "/puzzle.wav")
+        while self._audio.isBusy():
+            if self.__getGPIO__():
+                self._audio.stop()
+                return
+        self.net.sendDspON()
+        self.step = INSTRUCTIONS
+        self._playInstructions()
+
+    def _playInstructions(self):
+        self.net.sendDspOFF()
+        self._audio.playback("/home/pi/Documents/ovaom/python/assets/audio/ecoute_le_modele.wav")
+        while self._audio.isBusy():
+            if self.__getGPIO__():
+                self._audio.stop()
+                return
+        self._audio.playback("/home/pi/Documents/ovaom/python/assets/audio/a_toi_de_jouer.wav")
+        while self._audio.isBusy():
+            if self.__getGPIO__():
+                self._audio.stop()
+                return
+        self.net.sendDspON()
+        self.step = PLAYLEVEL
+        self._playGame()
+
+    def _playGame(self):
         try:
-            data = net.receiveOsc()
+            data = self.net.receiveOsc()
         except socket.error:
             pass
         else:
             if "params" in data[0]:
                 print data
-                net.sendParams(data, self._instrument)
+                self.net.sendParams(data, self._instrument)
                 self.params = {
                     "objectId": int(data[0][8]),
                     "data": data[2:]
                 }
             elif "state" in data[0]:
-                net.sendState(data, self._instrument)
+                self.net.sendState(data, self._instrument)
             elif "presetChange" in data[0]:
                 self._validateLevel()
+
+# *****************************************************************************
+#   Level validation
+# *****************************************************************************
 
     def _validateLevel(self):
         fails = 0
@@ -96,10 +138,13 @@ class Puzzle(object):
             self._success()
             
     def _failure(self):
-        print "FAIL: play failure audio" 
-        self.step = "play"
+        print "FAIL: play failure audio"
+        self.step = PLAYLEVEL
+        self._playGame()
+        
 
     def _success(self):
         print "SUCCESS: play success audio" 
         self.levelNum = (self.levelNum + 1) % self.totalLevels
-        self.step = "begin"
+        self.step = START
+        self._playStart()
