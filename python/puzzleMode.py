@@ -7,8 +7,9 @@ import json
 from pydub import AudioSegment
 from pydub.playback import play
 from AudioPlay import AudioPlay
+import threading
 
-ASSETS_FOLDER = "/home/pi/Documents/ovaom/python/assets"
+ASSETS_FOLDER = "/home/pi/Documents/ovaom/python/assets/"
 
 # Steps
 START           = 0
@@ -28,7 +29,8 @@ class Puzzle(object):
         }
         self._instrument = [ {"active": 0, "maxPreset": 5, "currentPreset": 0} for i in range(0, 4) ]
         self._importJSON();
-        self._audio = AudioPlay()
+        self._audio = AudioPlay(net)
+        self.instructionsPlaying = False
 
     def _importJSON(self):
         jsonFile = open("/home/pi/Documents/ovaom/python/assets/puzzle.json", "r")
@@ -36,8 +38,11 @@ class Puzzle(object):
         self.puzzleData = json.loads(fileAsString)
         self.totalLevels = len(self.puzzleData)
 
+# *****************************************************************************
+#   Public
+# *****************************************************************************
+
     def run(self):
-        self.__getGPIO__()
         if self.step == START:
             self._playStart()
         if self.step == INSTRUCTIONS:            
@@ -45,50 +50,38 @@ class Puzzle(object):
         if self.step == PLAYLEVEL:
             self._playGame()
 
-    def __getGPIO__(self):
-        input = False
-        if self.gpio.repeatButton():
+    def setStep(self, step):
+        if step == "INSTRUCTIONS":
             self.step = INSTRUCTIONS
-            input = True
-        if self.gpio.skipButton():
-            self.levelNum = (self.levelNum + 1) % self.totalLevels
-            self.step = START
-            input = True
-        return input
+        if step == "PLAYLEVEL":
+            self.step = PLAYLEVEL
+    
+    def incrementLevel(self):
+        self.levelNum = (self.levelNum + 1) % self.totalLevels
+        self.step = START
 
+    def stopAudio(self):
+        self._audio.stop()
 
 # *****************************************************************************
 #   Game states : playStart, playInstructions, playGame :
 # *****************************************************************************
 
     def _playStart(self):
-        self.net.sendDspOFF()            
+        # self.net.sendDspOFF()            
         print "------------------------------------------"
         print"Puzzle numero " + str(self.levelNum + 1)
-        self._audio.playback(ASSETS_FOLDER + "/audio/" + str(self.levelNum + 1) + "/puzzle.wav")
-        while self._audio.isBusy():
-            if self.__getGPIO__():
-                self._audio.stop()
-                return
-        self.net.sendDspON()
         self.step = INSTRUCTIONS
-        self._playInstructions()
 
     def _playInstructions(self):
-        self.net.sendDspOFF()
-        self._audio.playback("/home/pi/Documents/ovaom/python/assets/audio/ecoute_le_modele.wav")
-        while self._audio.isBusy():
-            if self.__getGPIO__():
-                self._audio.stop()
-                return
-        self._audio.playback("/home/pi/Documents/ovaom/python/assets/audio/a_toi_de_jouer.wav")
-        while self._audio.isBusy():
-            if self.__getGPIO__():
-                self._audio.stop()
-                return
-        self.net.sendDspON()
-        self.step = PLAYLEVEL
-        self._playGame()
+        if not self._audio.instructionsPlaying:
+            self._audio.instructionsPlaying = True
+            print "ecoute le modele"
+            threading.Thread(target=self._audio.playback, args=(ASSETS_FOLDER + "audio/a_toi_de_jouer.wav",)).start()
+        if not self._audio.isBusy:
+            print "after play"
+            self.step = PLAYLEVEL
+            self._audio.instructionsPlaying = False
 
     def _playGame(self):
         try:
@@ -145,6 +138,5 @@ class Puzzle(object):
 
     def _success(self):
         print "SUCCESS: play success audio" 
-        self.levelNum = (self.levelNum + 1) % self.totalLevels
-        self.step = START
+        self.incrementLevel()
         self._playStart()

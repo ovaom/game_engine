@@ -55,19 +55,22 @@ import Adafruit_ADS1x15
 import RPi.GPIO as GPIO
 import time
 
+# GPIO Pin definitions
+LED_STARTUP = 26
+LED_PUZZLE = 27
+LED_JUNGLE = 10
+LED_REPEAT = 11
+LED_SKIP = 13
+
+BTN_PUZZLE = 17
+BTN_JUNGLE = 22
+BTN_REPEAT = 9
+BTN_SKIP = 5
+
 class InOut(object):
-    # GPIO pins
-    ledStartupPin = 26
-    ledPuzzlePin = 27
-    ledJunglePin = 10
-    ledRepeatPin = 11
-    ledSkipPin = 13
-
-    btnPuzzlePin = 17
-    btnJunglePin = 22
-    btnRepeatPin = 9
-    btnSkipPin = 5
-
+    
+    __instance = None
+    
     def __init__(self, game):
         self._initADC()
         self._initGPIO()
@@ -77,10 +80,14 @@ class InOut(object):
             "prev": 0,
             "curr": 0
         }
-        self.prevRepeat = False
-        self.prevSkip = False
+        self.prevRepeat = 0
+        self.prevSkip = 0
 
     def _initADC(self):
+        if InOut.__instance != None:
+            raise Exception("This class is a singleton")
+        else:
+            InOut.__instance = self
         print "Starting ADC"
         self.adc = Adafruit_ADS1x15.ADS1115()
         self.GAIN = 1
@@ -92,23 +99,23 @@ class InOut(object):
         GPIO.setwarnings(False)
         GPIO.setmode(GPIO.BCM)
         # LED pin definition
-        GPIO.setup(self.ledStartupPin,  GPIO.OUT)
-        GPIO.setup(self.ledPuzzlePin,   GPIO.OUT)
-        GPIO.setup(self.ledJunglePin,   GPIO.OUT)
-        GPIO.setup(self.ledRepeatPin,   GPIO.OUT)
-        GPIO.setup(self.ledSkipPin,     GPIO.OUT)
+        GPIO.setup(LED_STARTUP,  GPIO.OUT)
+        GPIO.setup(LED_PUZZLE,   GPIO.OUT)
+        GPIO.setup(LED_JUNGLE,   GPIO.OUT)
+        GPIO.setup(LED_REPEAT,   GPIO.OUT)
+        GPIO.setup(LED_SKIP,     GPIO.OUT)
         # Set all LEDs off
-        GPIO.output(self.ledPuzzlePin, GPIO.HIGH)
-        GPIO.output(self.ledJunglePin, GPIO.HIGH)
-        GPIO.output(self.ledRepeatPin, GPIO.HIGH)
-        GPIO.output(self.ledSkipPin,   GPIO.HIGH)
+        GPIO.output(LED_PUZZLE, GPIO.HIGH)
+        GPIO.output(LED_JUNGLE, GPIO.HIGH)
+        GPIO.output(LED_REPEAT, GPIO.HIGH)
+        GPIO.output(LED_SKIP,   GPIO.HIGH)
         # Buttons
-        GPIO.setup(self.btnPuzzlePin,   GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-        GPIO.setup(self.btnJunglePin,   GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-        GPIO.setup(self.btnRepeatPin,   GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-        GPIO.setup(self.btnSkipPin,     GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+        GPIO.setup(BTN_PUZZLE,   GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+        GPIO.setup(BTN_JUNGLE,   GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+        GPIO.setup(BTN_REPEAT,   GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+        GPIO.setup(BTN_SKIP,     GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
         # Set startup LED off:
-        GPIO.output(self.ledStartupPin, GPIO.HIGH)
+        GPIO.output(LED_STARTUP, GPIO.HIGH)
         
     def _readADC(self):
         values = [0]*4
@@ -131,10 +138,10 @@ class InOut(object):
         time.sleep(1)
 
     # ------------------------------------------------------------------------- 
-    # Public methods
+    # Public 
     # -------------------------------------------------------------------------
 
-    def readVolumeKnob(self):
+    def getVolumeKnob(self):
         self.volume["curr"] = self.adc.read_adc(0, gain=self.GAIN)
         if abs(self.volume["curr"] - self.volume["prev"]) > 1:
             self.volume["prev"] = self.volume["curr"]
@@ -144,25 +151,26 @@ class InOut(object):
                 value = 100
             return value
 
-    def getGameMode(self, game):
-        if GPIO.input(self.btnPuzzlePin):
-            self.puzzleLedON()
-            game["mode"] = "PUZZLE"
-        elif GPIO.input(self.btnJunglePin):
-            self.jungleLedON()
-            game["mode"] = "JUNGLE"
+    def getPuzzleButton(self):
+        if GPIO.input(BTN_PUZZLE):
+            return True
 
-    def repeatButton(self):
-        value = GPIO.input(self.btnRepeatPin)
+    def getJungleButton(self):
+        if GPIO.input(BTN_JUNGLE):
+            return True
+
+    def getRepeatButton(self):
+        value = GPIO.input(BTN_REPEAT)
+        # print ("value " + str(value) + " prev: " + str(self.prevRepeat))
         if value != self.prevRepeat:
-            self.repeatLED(value)
             self.prevRepeat = value
+            print "repeat btn changed"
             return value
-
-    def skipButton(self):
-        value = GPIO.input(self.btnSkipPin)
+        return None
+        
+    def getSkipButton(self):
+        value = GPIO.input(BTN_SKIP)
         if value != self.prevSkip:
-            self.skipLED(value)
             self.prevSkip = value
             return value 
 
@@ -170,25 +178,25 @@ class InOut(object):
     # LED control
     # -------------------------------------------------------------------------
 
-    def puzzleLedON(self):
-        GPIO.output(self.ledJunglePin, GPIO.HIGH)
-        GPIO.output(self.ledPuzzlePin, GPIO.LOW)
+    def setPuzzleLedON(self):
+        GPIO.output(LED_JUNGLE, GPIO.HIGH)
+        GPIO.output(LED_PUZZLE, GPIO.LOW)
 
-    def jungleLedON(self):
-        GPIO.output(self.ledJunglePin, GPIO.LOW)
-        GPIO.output(self.ledPuzzlePin, GPIO.HIGH)
+    def setJungleLedON(self):
+        GPIO.output(LED_JUNGLE, GPIO.LOW)
+        GPIO.output(LED_PUZZLE, GPIO.HIGH)
         
-    def repeatLED(self, status):
+    def setRepeatLED(self, status):
         if status == 1:
-            GPIO.output(self.ledRepeatPin, GPIO.LOW)
+            GPIO.output(LED_REPEAT, GPIO.LOW)
         elif status == 0:
-            GPIO.output(self.ledRepeatPin, GPIO.HIGH)
+            GPIO.output(LED_REPEAT, GPIO.HIGH)
 
-    def skipLED(self, status):
+    def setSkipLED(self, status):
         if status == 1:
-            GPIO.output(self.ledSkipPin, GPIO.LOW)
+            GPIO.output(LED_SKIP, GPIO.LOW)
         elif status == 0:
-            GPIO.output(self.ledSkipPin, GPIO.HIGH)
+            GPIO.output(LED_SKIP, GPIO.HIGH)
 
     def mapvalue(self, x, inMin, inMax, outMin, outMax):
         return (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin
