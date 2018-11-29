@@ -11,6 +11,7 @@ class AudioPlay(object):
         pygame.mixer.init()
         self.net = net
         self.instructionsPlaying = False
+        self.instructionsFinished = False
 
     def isBusy(self):
         return pygame.mixer.get_busy()
@@ -20,8 +21,9 @@ class AudioPlay(object):
         self.sound = pygame.mixer.Sound(path)
         self.sound.play()
         while self.isBusy():
-            pass
-        print "finshed playing"
+            time.sleep(1)
+        self.instructionsFinished = True
+        print "finshed playing"        
         self.net.sendDspON()
 
     def stop(self):

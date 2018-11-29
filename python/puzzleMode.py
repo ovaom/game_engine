@@ -8,6 +8,7 @@ from pydub import AudioSegment
 from pydub.playback import play
 from AudioPlay import AudioPlay
 import threading
+import time
 
 ASSETS_FOLDER = "/home/pi/Documents/ovaom/python/assets/"
 
@@ -68,20 +69,26 @@ class Puzzle(object):
 # *****************************************************************************
 
     def _playStart(self):
-        # self.net.sendDspOFF()            
-        print "------------------------------------------"
-        print"Puzzle numero " + str(self.levelNum + 1)
-        self.step = INSTRUCTIONS
+        if not self._audio.instructionsPlaying:
+            self._audio.instructionsPlaying = True
+            print"*** Puzzle numero " + str(self.levelNum + 1)
+            path = ASSETS_FOLDER + "audio/" + str(self.levelNum + 1) + "/puzzle.wav"
+            threading.Thread(target=self._audio.playback, args=(path,)).start()
+        if self._audio.instructionsFinished:
+            self.step = INSTRUCTIONS
+            self._audio.instructionsPlaying = False
+            self._audio.instructionsFinished = False
 
     def _playInstructions(self):
         if not self._audio.instructionsPlaying:
             self._audio.instructionsPlaying = True
             print "ecoute le modele"
             threading.Thread(target=self._audio.playback, args=(ASSETS_FOLDER + "audio/a_toi_de_jouer.wav",)).start()
-        if not self._audio.isBusy:
+        if self._audio.instructionsFinished:
             print "after play"
             self.step = PLAYLEVEL
             self._audio.instructionsPlaying = False
+            self._audio.instructionsFinished = False
 
     def _playGame(self):
         try:

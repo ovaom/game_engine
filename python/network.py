@@ -80,12 +80,14 @@ class Network(object):
         try:
             self.client.send(self._mDspOn)
         except Exception as e:
-            print "Error sending /dspOn:"
-            print e
+            pass
+            # print "Error sending /dspOn:"
+            # print e
 
     def sendDspOFF(self):
         try:
             self.client.send(self._mDspOff)
         except Exception as e:
-            print "Error sending /dspOff:"
-            print e
+            pass
+            # print "Error sending /dspOff:"
+            # print e

@@ -26,7 +26,6 @@ class Event():
             self.fire()
     def fire(self):
         for observer in Observer._observers:
-            # print observer._observables[self.name] 
             if self.name in observer._observables: 
                 observer._observables[self.name](self.data)
 
@@ -43,7 +42,6 @@ class Button(Observer):
         GPIO.setJungleLedON()
 
     def repeatClick(self, data):
-        # print "repeat clicked" + str(data)
         GPIO.setRepeatLED(data)
         if data:
             puzzle.stopAudio()
@@ -56,7 +54,6 @@ class Button(Observer):
             puzzle.incrementLevel()
             puzzle.stopAudio()
         
-
 def getInputs():
     val1 = GPIO.getPuzzleButton()
     if val1 != None:
@@ -67,7 +64,6 @@ def getInputs():
     val3 = GPIO.getRepeatButton()
     if val3 != None:
         Event("repeatClick", val3)
-        # print "fire event"
     val4 = GPIO.getSkipButton()
     if val4 != None:
         Event("skipClick", val4)
@@ -77,7 +73,6 @@ def updateGame():
         jungle.run()
     elif game["mode"] == "PUZZLE":
         puzzle.run()
-
 
 if __name__ == "__main__":   
     game = {"mode": "JUNGLE",}    
@@ -95,7 +90,5 @@ if __name__ == "__main__":
     btn.observe("skipClick", btn.skipClick)
 
     while True:
-        pass
         getInputs()
         updateGame()
-        time.sleep(0.1)

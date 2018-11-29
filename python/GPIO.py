@@ -161,10 +161,8 @@ class InOut(object):
 
     def getRepeatButton(self):
         value = GPIO.input(BTN_REPEAT)
-        # print ("value " + str(value) + " prev: " + str(self.prevRepeat))
         if value != self.prevRepeat:
             self.prevRepeat = value
-            print "repeat btn changed"
             return value
         return None
         
