@@ -52,6 +52,8 @@ class Puzzle(object):
             self._playGame()
 
     def setStep(self, step):
+        if step == "START":
+            self.step = START
         if step == "INSTRUCTIONS":
             self.step = INSTRUCTIONS
         if step == "PLAYLEVEL":
@@ -73,24 +75,31 @@ class Puzzle(object):
             self._audio.instructionsPlaying = True
             print"*** Puzzle numero " + str(self.levelNum + 1)
             path = ASSETS_FOLDER + "audio/" + str(self.levelNum + 1) + "/puzzle.wav"
-            threading.Thread(target=self._audio.playback, args=(path,)).start()
-        if self._audio.instructionsFinished:
-            self.step = INSTRUCTIONS
-            self._audio.instructionsPlaying = False
-            self._audio.instructionsFinished = False
+            threading.Thread(
+                target=self._audio.playback, 
+                args=(path, self._startCallback)).start()
+
+    def _startCallback(self):
+        self.step = INSTRUCTIONS
+        self._audio.instructionsPlaying = False
 
     def _playInstructions(self):
         if not self._audio.instructionsPlaying:
             self._audio.instructionsPlaying = True
+            # self.step = INSTRUCTIONS
             print "ecoute le modele"
-            threading.Thread(target=self._audio.playback, args=(ASSETS_FOLDER + "audio/a_toi_de_jouer.wav",)).start()
-        if self._audio.instructionsFinished:
-            print "after play"
-            self.step = PLAYLEVEL
-            self._audio.instructionsPlaying = False
-            self._audio.instructionsFinished = False
+            path = ASSETS_FOLDER + "audio/a_toi_de_jouer.wav"
+            threading.Thread(
+                target=self._audio.playback, 
+                args=(path, self._instructionsCallback,)).start()
+    
+    def _instructionsCallback(self):
+        print "after play"
+        self.step = PLAYLEVEL
+        self._audio.instructionsPlaying = False
 
     def _playGame(self):
+        print "in game looop"
         try:
             data = self.net.receiveOsc()
         except socket.error:
