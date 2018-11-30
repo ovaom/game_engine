@@ -10,6 +10,9 @@ import volume
 import threading
 import time
 
+JUNGLE = 0
+PUZZLE = 1
+
 class Observer():
     _observers = []
     def __init__(self):
@@ -34,26 +37,29 @@ class Button(Observer):
         Observer.__init__(self)
 
     def puzzleClick(self, data):
-        game["mode"] = "PUZZLE"
+        game["mode"] = PUZZLE
         GPIO.setPuzzleLedON()
 
     def jungleClick(self, data):
-        game["mode"] = "JUNGLE"
+        game["mode"] = JUNGLE
         GPIO.setJungleLedON()
+        puzzle.stopAudio()
+        puzzle.setStep("START")
 
     def repeatClick(self, data):
-        GPIO.setRepeatLED(data)
+        if game["mode"] == PUZZLE:
+            GPIO.setRepeatLED(data)
         if data:
             puzzle.stopAudio()
             puzzle.setStep("INSTRUCTIONS")
 
     def skipClick(self, data):
-        GPIO.setSkipLED(data)
+        if game["mode"] == PUZZLE:
+            GPIO.setSkipLED(data)
         if data:
             puzzle.stopAudio()
             puzzle.incrementLevel()
-            puzzle.stopAudio()
-        
+
 def getInputs():
     val1 = GPIO.getPuzzleButton()
     if val1 != None:
@@ -69,13 +75,13 @@ def getInputs():
         Event("skipClick", val4)
 
 def updateGame():
-    if game["mode"] == "JUNGLE":
+    if game["mode"] == JUNGLE:
         jungle.run()
-    elif game["mode"] == "PUZZLE":
+    elif game["mode"] == PUZZLE:
         puzzle.run()
 
 if __name__ == "__main__":   
-    game = {"mode": "JUNGLE",}    
+    game = {"mode": JUNGLE,}    
     net = network.Network()
     GPIO = GPIO.InOut(game)
     v = volume.VolumeCtrl(GPIO)
