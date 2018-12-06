@@ -1,14 +1,15 @@
 
+import logging
 import threading
 import time
-import pygame 
+import pygame
+import sys
 
 ASSETS_FOLDER = "/home/pi/Documents/ovaom/python/assets"
 
 class AudioPlay(object):
 
     def __init__(self, net):
-        pygame.mixer.init()
         self.net = net
         self.instructionsPlaying = False
         self.interrupt = False
@@ -16,17 +17,27 @@ class AudioPlay(object):
     def isBusy(self):
         return pygame.mixer.get_busy()
 
-    def playback(self, path, callback):
+    # Version 1 :
+    def playback(self, path, callback):    
+        logging.debug("dspOFF send")
         self.net.sendDspOFF()
+        logging.debug("pygame mixer init")     
+        pygame.mixer.init()
+        logging.debug("load sound")
         self.sound = pygame.mixer.Sound(path)
+        logging.debug("play sound")
         pygame.mixer.Channel(0).play(self.sound)
         while self.isBusy():
-            time.sleep(0.05)
+            # time.sleep(0.01)
             if self.interrupt:
                 self.interrupt = False
                 return
-        print "finshed playing"
+        time.sleep(0.5)
+        logging.debug("finshed playing")
+        pygame.mixer.quit()
+        logging.debug("pygame mixer closed")
         self.net.sendDspON()
+        logging.debug("sent dspON")
         callback()
 
     def stop(self):
@@ -36,19 +47,25 @@ class AudioPlay(object):
             self.interrupt = True
             self.instructionsPlaying = False
 
-class Sample(object):
-    def __init__(self, *args):
-        self.net.sendDspOFF()
-        self.sound = pygame.mixer.Sound(path)
-    
-    def start(self):
-        pygame.mixer.Channel(0).play(self.sound)
-        while self.isBusy():
-            time.sleep(0.05)
-            if self.interrupt:
-                self.interrupt = False
-                return
-        print "finshed playing"
-        self.net.sendDspON()
-        callback()
-    
+
+# ============================================================================
+# PureData Version
+# ============================================================================
+
+
+# class AudioPlay(object):
+#     def __init__(self, net):
+#         self.net = net
+#         self.msg = net.oscMessage("/instructions")
+#         self.instructionsPlaying = False
+
+#     def isBusy(self):
+#         return pygame.mixer.get_busy()
+
+#     def playback(self, path, callback):
+#         self.msg.append(path)
+#         self.msg.append(callback)
+#         self.net.sendOsc(self.msg)
+
+#     def stop(self):
+#         self.instructionsPlaying = False   

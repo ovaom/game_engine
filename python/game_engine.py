@@ -2,11 +2,12 @@
 # game_engine.py
 # 
 
+import logging
 import network
 import GPIO
 import jungleMode
 import puzzleMode
-import volume
+# import volume
 import threading
 import time
 
@@ -44,7 +45,7 @@ class Button(Observer):
         game["mode"] = JUNGLE
         GPIO.setJungleLedON()
         puzzle.stopAudio()
-        puzzle.setStep("START")
+        puzzle.reset()
 
     def repeatClick(self, data):
         if game["mode"] == PUZZLE:
@@ -80,11 +81,13 @@ def updateGame():
     elif game["mode"] == PUZZLE:
         puzzle.run()
 
-if __name__ == "__main__":   
-    game = {"mode": JUNGLE,}    
+if __name__ == "__main__":  
+    logging.basicConfig(filename="/home/pi/Documents/ovaom/logs/game_engine.log", level=logging.DEBUG)
+    logging.info("Starting up")
+    game = {"mode": PUZZLE,}    
     net = network.Network()
     GPIO = GPIO.InOut(game)
-    v = volume.VolumeCtrl(GPIO)
+    # v = volume.VolumeCtrl(GPIO)
     jungle = jungleMode.Jungle(net)
     puzzle = puzzleMode.Puzzle(net, GPIO)
     # # threading.Thread(target=v.mainVolume_RW).start()
@@ -98,3 +101,4 @@ if __name__ == "__main__":
     while True:
         getInputs()
         updateGame()
+

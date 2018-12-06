@@ -2,6 +2,7 @@
 # puzzleMode.py
 #
 
+import logging
 import socket
 import json
 from pydub import AudioSegment
@@ -32,6 +33,10 @@ class Puzzle(object):
         self._importJSON();
         self._audio = AudioPlay(net)
         self.instructionsPlaying = False
+        self._callbackDict = {
+            "startCallback": self._startCallback,
+            "instructionsCallback": self._instructionsCallback,
+        }
 
     def _importJSON(self):
         jsonFile = open("/home/pi/Documents/ovaom/python/assets/puzzle.json", "r")
@@ -39,11 +44,12 @@ class Puzzle(object):
         self.puzzleData = json.loads(fileAsString)
         self.totalLevels = len(self.puzzleData)
 
-# *****************************************************************************
+# ================================================================================
 #   Public
-# *****************************************************************************
+# ================================================================================
 
     def run(self):
+        # self.callbackListen()
         if self.step == START:
             self._playStart()
         if self.step == INSTRUCTIONS:            
@@ -66,9 +72,26 @@ class Puzzle(object):
     def stopAudio(self):
         self._audio.stop()
 
-# *****************************************************************************
+    def reset(self):
+        self.step == START
+        self.levelNum = 0
+
+# ================================================================================
+#   Private
+# ================================================================================
+
+    def callbackListen(self):
+        try:
+            data = self.net.receiveOsc()
+        except socket.error:
+            return False
+        else:
+            if "callback" in data[0]:
+                self._callbackDict[data[2]]()
+
+# ================================================================================
 #   Game states : playStart, playInstructions, playGame :
-# *****************************************************************************
+# ================================================================================
 
     def _playStart(self):
         if not self._audio.instructionsPlaying:
@@ -80,13 +103,13 @@ class Puzzle(object):
                 args=(path, self._startCallback)).start()
 
     def _startCallback(self):
+        print "enter startcallback"
         self.step = INSTRUCTIONS
         self._audio.instructionsPlaying = False
 
     def _playInstructions(self):
         if not self._audio.instructionsPlaying:
             self._audio.instructionsPlaying = True
-            # self.step = INSTRUCTIONS
             print "ecoute le modele"
             path = ASSETS_FOLDER + "audio/a_toi_de_jouer.wav"
             threading.Thread(
@@ -99,14 +122,13 @@ class Puzzle(object):
         self._audio.instructionsPlaying = False
 
     def _playGame(self):
-        print "in game looop"
         try:
             data = self.net.receiveOsc()
         except socket.error:
             pass
         else:
             if "params" in data[0]:
-                print data
+                logging.debug(data)
                 self.net.sendParams(data, self._instrument)
                 self.params = {
                     "objectId": int(data[0][8]),
@@ -117,9 +139,9 @@ class Puzzle(object):
             elif "presetChange" in data[0]:
                 self._validateLevel()
 
-# *****************************************************************************
+# ================================================================================
 #   Level validation
-# *****************************************************************************
+# ================================================================================
 
     def _validateLevel(self):
         fails = 0
@@ -150,9 +172,10 @@ class Puzzle(object):
         print "FAIL: play failure audio"
         self.step = PLAYLEVEL
         self._playGame()
-        
 
     def _success(self):
         print "SUCCESS: play success audio" 
         self.incrementLevel()
         self._playStart()
+
+

@@ -2,8 +2,11 @@
 # network.py
 # 
 
+import logging
 import socket
 import OSC
+import time
+
 
 # Message format=> 0:objectID, 1:state, 2:preset 3:param1, 4:param2, n:paramN ...
 
@@ -17,7 +20,7 @@ class Network(object):
         self._msg.setAddress("/play")
         self._mDspOn.setAddress("/dspOn")
         self._mDspOff.setAddress("/dspOff")
-                
+
     def _connectServer(self):    
         ip = '192.168.4.1'
         inPort = 9001
@@ -28,36 +31,33 @@ class Network(object):
             self.my_socket.setblocking(0)
             self.my_socket.settimeout(0.002)
             self.my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, self.buffer_size)
-            print 'OSCServer : IP = ', ip,  'inPort = ', inPort,  'Buffer Size =', self.buffer_size
+            logging.info("OSCServer : IP = %s inPort = %d Buffer Size = %d", ip, inPort, self.buffer_size)
         except Exception as e:
-            print ('Server connection error:')
-            print e
+            logging.info("Server connection error:\n" + str(e))
 
     def _connectClient(self):
         # Init OSC Client
-        self.client = OSC.OSCClient()
+        self._client = OSC.OSCClient()
         outPort = 9002
-        self.client.connect(("192.168.4.1", outPort))
-        print (self.client)
+        self._client.connect(("192.168.4.1", outPort))
+        logging.info(self._client)
 
     def receiveOsc(self):
         raw_data = self.my_socket.recv(self.buffer_size)
         return OSC.decodeOSC(raw_data)
 
-    def OscMessage(self):
+    def oscMessage(self, address):
         msg = OSC.OSCMessage()
         msg.setAddress("/play")
         return (msg)
 
     def sendOsc(self, msg) :
-        # print ("sending data: ", msg)
+        # logging.debug("sending data: ", msg)
         try:
-            self.client.send(msg)
+            self._client.send(msg)
             msg.clearData();
         except Exception as e:
-            # print ("Send Error! message not sent:")
-            # print (msg)
-            # print (e)
+            # logging.debug("Send Error! message not sent:\n" + str(msg) + str(e))
             msg.clearData();
 
     def sendParams(self, data, instrument):
@@ -77,17 +77,11 @@ class Network(object):
         self.sendOsc(self._msg)
 
     def sendDspON(self):
-        try:
-            self.client.send(self._mDspOn)
-        except Exception as e:
-            pass
-            # print "Error sending /dspOn:"
-            # print e
+        start = time.time()
+        self.sendOsc(self._mDspOn)
+        logging.debug("Time(dspON)= " + str(time.time() - start))
 
     def sendDspOFF(self):
-        try:
-            self.client.send(self._mDspOff)
-        except Exception as e:
-            pass
-            # print "Error sending /dspOff:"
-            # print e
+        start = time.time()
+        self.sendOsc(self._mDspOff)
+        logging.debug("Time(dspOFF)= " + str(time.time() - start))

@@ -30,8 +30,8 @@
 # GAIN = 1
 
 # # Print nice channel column headers.
-# print('| {0:>6} | {1:>6} | {2:>6} | {3:>6} |'.format(*range(4)))
-# print('-' * 37)
+# logging.debug('| {0:>6} | {1:>6} | {2:>6} | {3:>6} |'.format(*range(4)))
+# logging.debug('-' * 37)
 # # Main loop.
 # def read():
 #     # Read all the ADC channel values in a list.
@@ -47,10 +47,11 @@
 #         # Each value will be a 12 or 16 bit signed integer value depending on the
 #         # ADC (ADS1015 = 12-bit, ADS1115 = 16-bit).
 #     # Print the ADC values.
-#     print('| {0:>6} | {1:>6} | {2:>6} | {3:>6} |'.format(*values))
+#     logging.debug('| {0:>6} | {1:>6} | {2:>6} | {3:>6} |'.format(*values))
 #     # Pause for half a second.
 #     # time.sleep(0.5)
 
+import logging
 import Adafruit_ADS1x15
 import RPi.GPIO as GPIO
 import time
@@ -88,14 +89,14 @@ class InOut(object):
             raise Exception("This class is a singleton")
         else:
             InOut.__instance = self
-        print "Starting ADC"
+        logging.info("Starting ADC")
         self.adc = Adafruit_ADS1x15.ADS1115()
         self.GAIN = 1
-        # print('| {0:>6} | {1:>6} | {2:>6} | {3:>6} |'.format(*range(4)))
-        # print('-' * 37)
+        # logging.debug('| {0:>6} | {1:>6} | {2:>6} | {3:>6} |'.format(*range(4)))
+        # logging.debug('-' * 37)
         
     def _initGPIO(self):
-        print "GPIO setup"
+        logging.info('GPIO setup')
         GPIO.setwarnings(False)
         GPIO.setmode(GPIO.BCM)
         # LED pin definition
@@ -121,7 +122,7 @@ class InOut(object):
         values = [0]*4
         for i in range(4):
             values[i] = self.adc.read_adc(i, gain=self.GAIN)
-        print('| {0:>6} | {1:>6} | {2:>6} | {3:>6} |'.format(*values))
+        logging.debug('| {0:>6} | {1:>6} | {2:>6} | {3:>6} |'.format(*values))
 
     def _test(self):
         self.puzzleLedON()
