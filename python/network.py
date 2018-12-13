@@ -7,13 +7,13 @@ import socket
 import OSC
 import time
 
-
 # Message format=> 0:objectID, 1:state, 2:preset 3:param1, 4:param2, n:paramN ...
 
 class Network(object):
     def __init__(self):
         self._connectServer()
         self._connectClient()
+        self._connectWavClient()
         self._msg = OSC.OSCMessage()        
         self._mDspOn = OSC.OSCMessage()
         self._mDspOff = OSC.OSCMessage()
@@ -42,6 +42,12 @@ class Network(object):
         self._client.connect(("192.168.4.1", outPort))
         logging.info(self._client)
 
+    def _connectWavClient(self):
+        self._wavClient = OSC.OSCClient()
+        outPort = 9003
+        self._wavClient.connect(("192.168.4.1", outPort))
+        logging.info(self._wavClient)
+
     def receiveOsc(self):
         raw_data = self.my_socket.recv(self.buffer_size)
         return OSC.decodeOSC(raw_data)
@@ -52,14 +58,23 @@ class Network(object):
         return (msg)
 
     def sendOsc(self, msg) :
-        # logging.debug("sending data: ", msg)
+        # logging.debug("sending data: %s", msg)
         try:
             self._client.send(msg)
             msg.clearData();
         except Exception as e:
             # logging.debug("Send Error! message not sent:\n" + str(msg) + str(e))
             msg.clearData();
-
+    
+    def sendOscWavPlayback(self, msg):
+        # logging.debug("sending wav playback data: %s", msg)
+        try:
+            self._wavClient.send(msg)
+            msg.clearData();
+        except Exception as e:
+            # logging.debug("Send Error! message not sent:\n" + str(msg) + str(e))
+            msg.clearData();  
+                 
     def sendParams(self, data, instrument):
         objId = int(data[0][8])
         self._msg.append(objId)
@@ -75,13 +90,3 @@ class Network(object):
         self._msg.append(objId)
         self._msg.append(instrument[objId]["active"])
         self.sendOsc(self._msg)
-
-    def sendDspON(self):
-        start = time.time()
-        self.sendOsc(self._mDspOn)
-        logging.debug("Time(dspON)= " + str(time.time() - start))
-
-    def sendDspOFF(self):
-        start = time.time()
-        self.sendOsc(self._mDspOff)
-        logging.debug("Time(dspOFF)= " + str(time.time() - start))
