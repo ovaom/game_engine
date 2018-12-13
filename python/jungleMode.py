@@ -6,18 +6,18 @@ import logging
 import time
 import socket
 import threading
-from AudioPlay import AudioPlay
+
 from CONST import *
+from AudioPlay import AudioPlay
+from GameMode import GameMode
 
-# SPEAK_JUNGLE_MODE = 0
-# PLAY_JUNGLE_MODE = 1
 
-class Jungle(object):
+class Jungle(GameMode):
 
     def __init__(self, net):
+        GameMode.__init__(self)
         self.net = net
-        self._instrument = [ {"active": 0, "maxPreset": 5, "currentPreset": 0} for i in range(0, 4) ]
-        self._msg = net.oscMessage("play")
+        self._msg = net.oscMessage('play')
         self._step = SPEAK_JUNGLE_MODE
         self._audio = AudioPlay(net)
         self.instructionsPlaying = False
@@ -29,15 +29,13 @@ class Jungle(object):
 # Public
 # ============================================================================
 
-    def run(self):
-        # logging.debug('step is: %d', self._step)
-        self._callbackListen()
+    def run(self, data=None):
+        GameMode.killOfflineObjects(self, data)
+        self._callbackListen(data)
         if self._step == SPEAK_JUNGLE_MODE:
-            # logging.debug('speak+jungle_mode')
             self._speakJungleMode()
         elif self._step == PLAY_JUNGLE_MODE:
-            # logging.debug('play_jungle_mode')
-            self._playJungleMode()
+            self._playJungleMode(data)
 
     def reset(self):
         self._step = SPEAK_JUNGLE_MODE
@@ -49,19 +47,13 @@ class Jungle(object):
 # Private
 # ============================================================================
 
-    def _callbackListen(self):
-        try:
-            data = self.net.receiveOsc()
-            logging.debug(data)
-        except socket.error as e:
-            pass 
-        else:
-            if 'callback' in data[0]:
-                try:
-                    self._callbackDict[data[2]]()
-                except Exception as e:
-                    logging.debug(e)
-                    pass
+    def _callbackListen(self, data):
+        if data and 'callback' in data[0]:
+            try:
+                self._callbackDict[data[2]]()
+            except Exception as e:
+                logging.debug(e)
+                pass
 
     def _speakJungleMode(self):
         if not self._audio.instructionsPlaying:
@@ -76,22 +68,18 @@ class Jungle(object):
         self._step = PLAY_JUNGLE_MODE
         self._audio.instructionsPlaying = False
             
-    def _playJungleMode(self):
-        try:
-            data = self.net.receiveOsc()
-            logging.debug(data)
-        except socket.error:
-            pass
-        else:
-            if "params" in data[0]:
-                self.net.sendParams(data, self._instrument)
-            elif "state" in data[0]:
-                self.net.sendState(data, self._instrument)
-            elif "presetChange" in data[0] :
-                objId = int(data[0][8])
-                self._instrument[objId]["currentPreset"] = (self._instrument[objId]["currentPreset"] + 1) % self._instrument[objId]["maxPreset"]
-                logging.debug("Preset is now " + str(self._instrument[objId]["currentPreset"]))
-            elif "battery" in data[0]:
-                localtime = time.asctime(time.localtime(time.time()))
-                logging.debug(localtime + " : battery: " + str(data[2]) + "%")
-               
+    def _playJungleMode(self, data):
+        if not data:
+            return
+        if 'params' in data[0]:
+            self.net.sendParams(data, self._instrument)
+        elif 'state' in data[0]:
+            self.net.sendState(data, self._instrument)
+        elif 'presetChange' in data[0] :
+            objId = int(data[0][8])
+            self._instrument[objId]['currentPreset'] = (self._instrument[objId]['currentPreset'] + 1) % self._instrument[objId]['maxPreset']
+            logging.debug('Preset is now ' + str(self._instrument[objId]['currentPreset']))
+        elif 'battery' in data[0]:
+            localtime = time.asctime(time.localtime(time.time()))
+            logging.debug(localtime + ' : battery: ' + str(data[2]) + '%')
+

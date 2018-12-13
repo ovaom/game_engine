@@ -3,32 +3,17 @@
 # 
 
 import logging
+import threading
+import socket
+
+from CONST import *
 import network
 import GPIO
 import jungleMode
 import puzzleMode
 # import volume
-import threading
-from CONST import *
+from Observer import Observer, Event
 
-class Observer():
-    _observers = []
-    def __init__(self):
-        self._observers.append(self)
-        self._observables = {}
-    def observe(self, eventName, callback):
-        self._observables[eventName] = callback
-
-class Event():
-    def __init__(self, name, data, autofire = True):
-        self.name = name
-        self.data = data
-        if autofire:
-            self.fire()
-    def fire(self):
-        for observer in Observer._observers:
-            if self.name in observer._observables: 
-                observer._observables[self.name](self.data)
 
 class Button(Observer):
     def __init__(self):
@@ -74,11 +59,20 @@ def getInputs():
     if val4 != None:
         Event('skipClick', val4)
 
-def updateGame():
+def getOscData():
+    try:
+        data = net.receiveOsc()
+        logging.debug(data)
+    except socket.error as e:
+        return None
+    else:
+        return data
+
+def updateGame(oscData):
     if game['mode'] == JUNGLE:
-        jungle.run()
+        jungle.run(oscData)
     elif game['mode'] == PUZZLE:
-        puzzle.run()
+        puzzle.run(oscData)
 
 if __name__ == '__main__':  
     logging.basicConfig(filename='/home/pi/Documents/ovaom/logs/game_engine.log', level=logging.DEBUG)
@@ -90,7 +84,7 @@ if __name__ == '__main__':
     GPIO = GPIO.InOut(game)
     # v = volume.VolumeCtrl(GPIO)
     jungle = jungleMode.Jungle(net)
-    puzzle = puzzleMode.Puzzle(net, GPIO)
+    puzzle = puzzleMode.Puzzle(net)
     # # threading.Thread(target=v.mainVolume_RW).start()
 
     btn = Button()
@@ -103,5 +97,6 @@ if __name__ == '__main__':
 
     while True:
         getInputs()
-        updateGame()
+        oscData = getOscData()
+        updateGame(oscData)
 

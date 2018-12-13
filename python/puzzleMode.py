@@ -11,16 +11,14 @@ from CONST import *
 
 class Puzzle(object):
     
-    def __init__(self, net, gpio):
+    def __init__(self, net):
         self.net = net
-        self.gpio = gpio
         self.levelNum = 0
         self.totalLevels = 1
         self.step = SPEAK_PUZZLE_MODE
         self.params = {
                     'data': []
         }
-        self._instrument = [ {'active': 0, 'maxPreset': 5, 'currentPreset': 0} for i in range(0, 4) ]
         self._importJSON();
         self._audio = AudioPlay(net)
         self.instructionsPlaying = False
@@ -40,9 +38,9 @@ class Puzzle(object):
 #   Public
 # ================================================================================
 
-    def run(self):
+    def run(self, data):
         # if self.step != PLAY_LEVEL:
-        self._callbackListen()
+        self._callbackListen(data)
         if self.step == SPEAK_PUZZLE_MODE:
             self._speakPuzzleMode()
         if self.step == SPEAK_LEVEL_NUMBER:
@@ -50,7 +48,7 @@ class Puzzle(object):
         if self.step == SPEAK_INSTRUCTIONS:            
             self._speakInstructions()
         if self.step == PLAY_LEVEL:
-            self._playLevel()
+            self._playLevel(data)
 
     def setStep(self, step):
         if step == 'SPEAK_PUZZLE_MODE':
@@ -77,18 +75,12 @@ class Puzzle(object):
 #   Private
 # ================================================================================
 
-    def _callbackListen(self):
-        try:
-            data = self.net.receiveOsc()
-            logging.debug(data)
-        except socket.error as e:
-            pass 
-        else:
-            if 'callback' in data[0]:
-                try:
-                    self._callbackDict[data[2]]()
-                except:
-                    pass
+    def _callbackListen(self, data):
+        if data and 'callback' in data[0]:
+            try:
+                self._callbackDict[data[2]]()
+            except:
+                pass
 
 # ================================================================================
 #   Game states : playStart, playInstructions, playGame :
@@ -133,23 +125,20 @@ class Puzzle(object):
         self.step = PLAY_LEVEL
         self._audio.instructionsPlaying = False
 
-    def _playLevel(self):
-        try:
-            data = self.net.receiveOsc()
-        except socket.error:
-            pass
-        else:
-            if 'params' in data[0]:
-                logging.debug(data)
-                self.net.sendParams(data, self._instrument)
-                self.params = {
-                    'objectId': int(data[0][8]),
-                    'data': data[2:]
-                }
-            elif 'state' in data[0]:
-                self.net.sendState(data, self._instrument)
-            elif 'presetChange' in data[0]:
-                self._validateLevel()
+    def _playLevel(self, data):
+        if not data:
+            return
+        if 'params' in data[0]:
+            logging.debug(data)
+            self.net.sendParams(data, self._instrument)
+            self.params = {
+                'objectId': int(data[0][8]),
+                'data': data[2:]
+            }
+        elif 'state' in data[0]:
+            self.net.sendState(data, self._instrument)
+        elif 'presetChange' in data[0]:
+            self._validateLevel()
 
 # ================================================================================
 #   Level validation

@@ -1,4 +1,4 @@
-#N canvas 507 176 1133 797 10;
+#N canvas 506 182 1133 797 10;
 #X declare -path abs;
 #X declare -path abs/Chords-Roll;
 #X declare -path abs/grelot_sounds;

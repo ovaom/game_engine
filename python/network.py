@@ -90,3 +90,8 @@ class Network(object):
         self._msg.append(objId)
         self._msg.append(instrument[objId]["active"])
         self.sendOsc(self._msg)
+
+    def sendObjectNotConnected(self, objectId):
+        self._msg.append(objectId)
+        self._msg.append(0) # 0 = object is inactive
+        self.sendOsc(self._msg)
