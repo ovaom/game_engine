@@ -5,13 +5,14 @@
 import logging
 import threading
 import socket
+import time
 
 from CONST import *
 import network
 import GPIO
 import jungleMode
 import puzzleMode
-# import volume
+import volume
 from Observer import Observer, Event
 
 
@@ -62,7 +63,8 @@ def getInputs():
 def getOscData():
     try:
         data = net.receiveOsc()
-        logging.debug(data)
+        if not 'ping' in data[0] and not 'battery' in data[0] and not 'params' in data[0] :
+            log.debug(data)
     except socket.error as e:
         return None
     else:
@@ -74,18 +76,19 @@ def updateGame(oscData):
     elif game['mode'] == PUZZLE:
         puzzle.run(oscData)
 
-if __name__ == '__main__':  
+if __name__ == '__main__': 
+    log = logging.getLogger('ovaom')
+    logging.getLogger('Adafruit_I2C.Device.Bus.1.Address.0X48').setLevel(logging.WARNING)
     logging.basicConfig(filename='/home/pi/Documents/ovaom/logs/game_engine.log', level=logging.DEBUG)
-    logging.info('==========================================================')
-    logging.info('Starting up')
+    log.info('==========================================================')
+    log.info('Starting up')
 
     game = {'mode': JUNGLE,}    
     net = network.Network()
     GPIO = GPIO.InOut(game)
-    # v = volume.VolumeCtrl(GPIO)
+    v = volume.VolumeCtrl(GPIO)
     jungle = jungleMode.Jungle(net)
     puzzle = puzzleMode.Puzzle(net)
-    # # threading.Thread(target=v.mainVolume_RW).start()
 
     btn = Button()
     btn.observe('puzzleClick', btn.puzzleClick)
@@ -96,6 +99,7 @@ if __name__ == '__main__':
     Event('jungleClick', 0)
 
     while True:
+        threading.Thread(target=v.mainVolume_RW).start()
         getInputs()
         oscData = getOscData()
         updateGame(oscData)

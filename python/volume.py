@@ -11,10 +11,8 @@ class VolumeCtrl(object):
         self.gpio = gpio
    
     def mainVolume_RW(self):
-        while True:
-            knob = self.gpio.readVolumeKnob()
-            vol = alsaaudio.Mixer("Digital").getvolume()[1]
-            if knob != None:
-                if abs(knob - vol) > 1:
-                    alsaaudio.Mixer("Digital").setvolume(knob)
-            time.sleep(0.05)
+        knob = self.gpio.getVolumeKnob()
+        vol = alsaaudio.Mixer("Digital").getvolume()[1]
+        if knob != None:
+            if abs(knob - vol) > 1:
+                alsaaudio.Mixer("Digital").setvolume(knob)

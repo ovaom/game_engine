@@ -2,16 +2,20 @@
 # puzzleMode.py
 #
 
-import logging
+from logger import log
 import socket
 import json
 import threading
-from AudioPlay import AudioPlay 
-from CONST import *
 
-class Puzzle(object):
+from CONST import *
+from AudioPlay import AudioPlay 
+from GameMode import GameMode
+
+
+class Puzzle(GameMode):
     
     def __init__(self, net):
+        GameMode.__init__(self)
         self.net = net
         self.levelNum = 0
         self.totalLevels = 1
@@ -26,6 +30,8 @@ class Puzzle(object):
             'speakPuzzleModeCallback': self._speakPuzzleModeCallback,
             'speakLevelNumberCallback': self._speakLevelNumberCallback,
             'speakInstructionsCallback': self._speakInstructionsCallback,
+            'failureCallback': self._failureCallback,
+            'successCallback': self._successCallback,
         }
 
     def _importJSON(self):
@@ -39,7 +45,7 @@ class Puzzle(object):
 # ================================================================================
 
     def run(self, data):
-        # if self.step != PLAY_LEVEL:
+        GameMode.killOfflineObjects(self, data)
         self._callbackListen(data)
         if self.step == SPEAK_PUZZLE_MODE:
             self._speakPuzzleMode()
@@ -89,7 +95,7 @@ class Puzzle(object):
     def _speakPuzzleMode(self):
         if not self._audio.instructionsPlaying:
             self._audio.instructionsPlaying = True
-            logging.info( '*** PUZZLE MODE ***' )
+            log.info( '*** PUZZLE MODE ***' )
             path = ASSETS_FOLDER + 'audio/puzzle_mode.wav'
             threading.Thread(
                 target=self._audio.playback, 
@@ -102,7 +108,7 @@ class Puzzle(object):
     def _speakLevelNumber(self):
         if not self._audio.instructionsPlaying:
             self._audio.instructionsPlaying = True
-            logging.info( 'Puzzle numero ' + str(self.levelNum + 1) )
+            log.info( 'Puzzle numero ' + str(self.levelNum + 1) )
             path = ASSETS_FOLDER + 'audio/' + str(self.levelNum + 1) + '/puzzle.wav'
             threading.Thread(
                 target=self._audio.playback, 
@@ -115,7 +121,7 @@ class Puzzle(object):
     def _speakInstructions(self):
         if not self._audio.instructionsPlaying:
             self._audio.instructionsPlaying = True
-            logging.info( 'ecoute le modele' )
+            log.info( 'ecoute le modele' )
             path = ASSETS_FOLDER + 'audio/a_toi_de_jouer.wav'
             threading.Thread(
                 target=self._audio.playback, 
@@ -129,7 +135,7 @@ class Puzzle(object):
         if not data:
             return
         if 'params' in data[0]:
-            logging.debug(data)
+            log.debug(data)
             self.net.sendParams(data, self._instrument)
             self.params = {
                 'objectId': int(data[0][8]),
@@ -148,35 +154,52 @@ class Puzzle(object):
         fails = 0
         answer = self.puzzleData[self.levelNum]
         if answer[0]['objectId'] != self.params['objectId']:
-            logging.info('wrong object')
+            log.info('wrong object')
             self._failure()
             return
         if len(answer[0]['values']) != len(self.params['data']):
-            logging.info(('Validation Error: number of parameters does not match JSON file'))
+            log.info(('Validation Error: number of parameters does not match JSON file'))
             self._failure()
             return 
         for i in range(len(answer[0]['values'])):
             min = answer[0]['values'][i] - answer[0]['tolerance'][i]
             max = answer[0]['values'][i] + answer[0]['tolerance'][i]
             if min <= self.params['data'][i] <= max:
-                logging.info('param ' + str(i) + ' is ok!')
+                log.info('param ' + str(i) + ' is ok!')
                 pass
             else:
-                logging.info('fail: ' + str(self.params['data'][i]) + ' not between ' + str(min) + ' and ' + str(max))
+                log.info('fail: ' + str(self.params['data'][i]) + ' not between ' + str(min) + ' and ' + str(max))
                 fails += 1
         if fails:
             self._failure()
         else:
             self._success()
-            
+
     def _failure(self):
-        logging.info('FAIL: play failure audio')
+        log.info('FAIL: play failure audio')
+        if not self._audio.instructionsPlaying:
+            self._audio.instructionsPlaying = True
+            log.info( 'ecoute le modele' )
+            path = ASSETS_FOLDER + 'audio/failure.wav'
+            threading.Thread(
+                target=self._audio.playback, 
+                args=(path, 'failureCallback',)).start()
+
+    def _failureCallback(self):
         self.step = PLAY_LEVEL
-        self._playLevel()
+        self._audio.instructionsPlaying = False
 
     def _success(self):
-        logging.info('SUCCESS: play success audio')
+        log.info('SUCCESS: play success audio')
+        if not self._audio.instructionsPlaying:
+            self._audio.instructionsPlaying = True
+            log.info( 'ecoute le modele' )
+            path = ASSETS_FOLDER + 'audio/success.wav'
+            threading.Thread(
+                target=self._audio.playback, 
+                args=(path, 'successCallback',)).start()
+
+    def _successCallback(self):
         self.incrementLevel()
-        self._speak_intructions()
-
-
+        self.step = SPEAK_LEVEL_NUMBER
+        self._audio.instructionsPlaying = False

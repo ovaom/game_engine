@@ -30,8 +30,8 @@
 # GAIN = 1
 
 # # Print nice channel column headers.
-# logging.debug('| {0:>6} | {1:>6} | {2:>6} | {3:>6} |'.format(*range(4)))
-# logging.debug('-' * 37)
+# log.debug('| {0:>6} | {1:>6} | {2:>6} | {3:>6} |'.format(*range(4)))
+# log.debug('-' * 37)
 # # Main loop.
 # def read():
 #     # Read all the ADC channel values in a list.
@@ -47,11 +47,11 @@
 #         # Each value will be a 12 or 16 bit signed integer value depending on the
 #         # ADC (ADS1015 = 12-bit, ADS1115 = 16-bit).
 #     # Print the ADC values.
-#     logging.debug('| {0:>6} | {1:>6} | {2:>6} | {3:>6} |'.format(*values))
+#     log.debug('| {0:>6} | {1:>6} | {2:>6} | {3:>6} |'.format(*values))
 #     # Pause for half a second.
 #     # time.sleep(0.5)
 
-import logging
+from logger import log
 import Adafruit_ADS1x15
 import RPi.GPIO as GPIO
 import time
@@ -68,6 +68,7 @@ BTN_JUNGLE = 17
 BTN_REPEAT = 9
 BTN_SKIP = 5
 
+
 class InOut(object):
     
     __instance = None
@@ -75,7 +76,7 @@ class InOut(object):
     def __init__(self, game):
         self._initADC()
         self._initGPIO()
-        # self._readADC()
+        self._readADC()
         # self._test()
         self.volume = {
             "prev": 0,
@@ -89,14 +90,14 @@ class InOut(object):
             raise Exception("This class is a singleton")
         else:
             InOut.__instance = self
-        logging.info("Starting ADC")
+        log.info("Starting ADC")
         self.adc = Adafruit_ADS1x15.ADS1115()
         self.GAIN = 1
-        # logging.debug('| {0:>6} | {1:>6} | {2:>6} | {3:>6} |'.format(*range(4)))
-        # logging.debug('-' * 37)
+        # log.debug('| {0:>6} | {1:>6} | {2:>6} | {3:>6} |'.format(*range(4)))
+        # log.debug('-' * 37)
         
     def _initGPIO(self):
-        logging.info('GPIO setup')
+        log.info('GPIO setup')
         GPIO.setwarnings(False)
         GPIO.setmode(GPIO.BCM)
         # LED pin definition
@@ -122,7 +123,7 @@ class InOut(object):
         values = [0]*4
         for i in range(4):
             values[i] = self.adc.read_adc(i, gain=self.GAIN)
-        logging.debug('| {0:>6} | {1:>6} | {2:>6} | {3:>6} |'.format(*values))
+        log.debug('| {0:>6} | {1:>6} | {2:>6} | {3:>6} |'.format(*values))
 
     def _test(self):
         self.puzzleLedON()
@@ -146,7 +147,7 @@ class InOut(object):
         self.volume["curr"] = self.adc.read_adc(0, gain=self.GAIN)
         if abs(self.volume["curr"] - self.volume["prev"]) > 1:
             self.volume["prev"] = self.volume["curr"]
-            value = self.mapvalue(self.volume["curr"], 0, 26480, 0, 100)
+            value = self.mapvalue(self.volume["curr"], 0, 26400, 0, 100)
             value = int(19.94 * value ** 0.358)
             if value > 100:
                 value = 100

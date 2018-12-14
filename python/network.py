@@ -2,12 +2,13 @@
 # network.py
 # 
 
-import logging
+from logger import log
 import socket
 import OSC
 import time
 
 # Message format=> 0:objectID, 1:state, 2:preset 3:param1, 4:param2, n:paramN ...
+
 
 class Network(object):
     def __init__(self):
@@ -31,22 +32,22 @@ class Network(object):
             self.my_socket.setblocking(0)
             self.my_socket.settimeout(0.002)
             self.my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, self.buffer_size)
-            logging.info("OSCServer : IP = %s inPort = %d Buffer Size = %d", ip, inPort, self.buffer_size)
+            log.info("OSCServer : IP = %s inPort = %d Buffer Size = %d", ip, inPort, self.buffer_size)
         except Exception as e:
-            logging.info("Server connection error:\n" + str(e))
+            log.info("Server connection error:\n" + str(e))
 
     def _connectClient(self):
         # Init OSC Client
         self._client = OSC.OSCClient()
         outPort = 9002
         self._client.connect(("192.168.4.1", outPort))
-        logging.info(self._client)
+        log.info(self._client)
 
     def _connectWavClient(self):
         self._wavClient = OSC.OSCClient()
         outPort = 9003
         self._wavClient.connect(("192.168.4.1", outPort))
-        logging.info(self._wavClient)
+        log.info(self._wavClient)
 
     def receiveOsc(self):
         raw_data = self.my_socket.recv(self.buffer_size)
@@ -58,21 +59,21 @@ class Network(object):
         return (msg)
 
     def sendOsc(self, msg) :
-        # logging.debug("sending data: %s", msg)
+        # log.debug("sending data: %s", msg)
         try:
             self._client.send(msg)
             msg.clearData();
         except Exception as e:
-            # logging.debug("Send Error! message not sent:\n" + str(msg) + str(e))
+            # log.debug("Send Error! message not sent:\n" + str(msg) + str(e))
             msg.clearData();
     
     def sendOscWavPlayback(self, msg):
-        # logging.debug("sending wav playback data: %s", msg)
+        # log.debug("sending wav playback data: %s", msg)
         try:
             self._wavClient.send(msg)
             msg.clearData();
         except Exception as e:
-            # logging.debug("Send Error! message not sent:\n" + str(msg) + str(e))
+            # log.debug("Send Error! message not sent:\n" + str(msg) + str(e))
             msg.clearData();  
                  
     def sendParams(self, data, instrument):

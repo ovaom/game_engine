@@ -2,7 +2,7 @@
 # jungleMode.py
 # 
 
-import logging
+from logger import log
 import time
 import socket
 import threading
@@ -52,13 +52,13 @@ class Jungle(GameMode):
             try:
                 self._callbackDict[data[2]]()
             except Exception as e:
-                logging.debug(e)
+                log.debug(e)
                 pass
 
     def _speakJungleMode(self):
         if not self._audio.instructionsPlaying:
             self._audio.instructionsPlaying = True
-            logging.info( '*** JUNGLE MODE ***' )
+            log.info( '*** JUNGLE MODE ***' )
             path = ASSETS_FOLDER + 'audio/jungle_mode.wav'
             threading.Thread(
                 target=self._audio.playback, 
@@ -78,8 +78,8 @@ class Jungle(GameMode):
         elif 'presetChange' in data[0] :
             objId = int(data[0][8])
             self._instrument[objId]['currentPreset'] = (self._instrument[objId]['currentPreset'] + 1) % self._instrument[objId]['maxPreset']
-            logging.debug('Preset is now ' + str(self._instrument[objId]['currentPreset']))
-        elif 'battery' in data[0]:
-            localtime = time.asctime(time.localtime(time.time()))
-            logging.debug(localtime + ' : battery: ' + str(data[2]) + '%')
+            log.debug('Preset is now ' + str(self._instrument[objId]['currentPreset']))
+        # elif data and 'battery' in data[0]:
+        #     localtime = time.asctime(time.localtime(time.time()))
+        #     log.debug(localtime + ' : battery: ' + str(data[2]) + '%')
 

@@ -2,10 +2,11 @@
 # GameMode Class
 # ============================================================================
 
-import logging
+from logger import log
 import time
 
-INACTIVE_THRESHOLD = 1 # 1 second
+INACTIVE_THRESHOLD = 4 # 1 second
+
 
 class GameMode(object):
     def __init__(self):
@@ -27,11 +28,10 @@ class GameMode(object):
                 offline_objects.append(i)
         offline_objects.sort()
         if offline_objects != self._prev_offline_objects:
-            logging.debug('change in offline objects list')
+            log.debug('change in offline objects list: %s', offline_objects)
             for obj in offline_objects:
                 self.net.sendObjectNotConnected(obj)
             self._prev_offline_objects = list(offline_objects)
 
 
 
-        # logging.info('Objects [%s] is not sending ping', self.offline_objects)
