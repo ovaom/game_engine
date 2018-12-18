@@ -2,11 +2,10 @@
 # jungleMode.py
 # 
 
-from logger import log
 import time
-import socket
 import threading
 
+from logger import log
 from CONST import *
 from AudioPlay import AudioPlay
 from GameMode import GameMode
@@ -15,12 +14,10 @@ from GameMode import GameMode
 class Jungle(GameMode):
 
     def __init__(self, net):
-        GameMode.__init__(self)
-        self.net = net
+        GameMode.__init__(self, net)
         self._msg = net.oscMessage('play')
         self._step = SPEAK_JUNGLE_MODE
         self._audio = AudioPlay(net)
-        self.instructionsPlaying = False
         self._callbackDict = {
             'speakJungleModeCallback': self._speakJungleModeCallback,
         }
@@ -30,7 +27,7 @@ class Jungle(GameMode):
 # ============================================================================
 
     def run(self, data=None):
-        GameMode.killOfflineObjects(self, data)
+        GameMode.run(self, data)
         self._callbackListen(data)
         if self._step == SPEAK_JUNGLE_MODE:
             self._speakJungleMode()
@@ -52,8 +49,7 @@ class Jungle(GameMode):
             try:
                 self._callbackDict[data[2]]()
             except Exception as e:
-                log.debug(e)
-                pass
+                log.error(e)
 
     def _speakJungleMode(self):
         if not self._audio.instructionsPlaying:
@@ -67,19 +63,20 @@ class Jungle(GameMode):
     def _speakJungleModeCallback(self):
         self._step = PLAY_JUNGLE_MODE
         self._audio.instructionsPlaying = False
+        ### Last callback, update all objects state:
+        log.info('Last callback, sending all objects states: ')
+        self.net.sendAllObjectStates(GameMode.instrument)
             
     def _playJungleMode(self, data):
         if not data:
             return
         if 'params' in data[0]:
-            self.net.sendParams(data, self._instrument)
+            self.net.sendParams(data, GameMode.instrument)
         elif 'state' in data[0]:
-            self.net.sendState(data, self._instrument)
+            objId = int(data[0][8])
+            self.net.sendState(objId, GameMode.instrument[objId]["active"])
         elif 'presetChange' in data[0] :
             objId = int(data[0][8])
-            self._instrument[objId]['currentPreset'] = (self._instrument[objId]['currentPreset'] + 1) % self._instrument[objId]['maxPreset']
-            log.debug('Preset is now ' + str(self._instrument[objId]['currentPreset']))
-        # elif data and 'battery' in data[0]:
-        #     localtime = time.asctime(time.localtime(time.time()))
-        #     log.debug(localtime + ' : battery: ' + str(data[2]) + '%')
+            GameMode.instrument[objId]['currentPreset'] = (GameMode.instrument[objId]['currentPreset'] + 1) % GameMode.instrument[objId]['maxPreset']
+            log.debug('Preset is now ' + str(GameMode.instrument[objId]['currentPreset']))
 

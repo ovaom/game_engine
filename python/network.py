@@ -16,11 +16,7 @@ class Network(object):
         self._connectClient()
         self._connectWavClient()
         self._msg = OSC.OSCMessage()        
-        self._mDspOn = OSC.OSCMessage()
-        self._mDspOff = OSC.OSCMessage()
         self._msg.setAddress("/play")
-        self._mDspOn.setAddress("/dspOn")
-        self._mDspOff.setAddress("/dspOff")
 
     def _connectServer(self):    
         ip = '192.168.4.1'
@@ -34,7 +30,8 @@ class Network(object):
             self.my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, self.buffer_size)
             log.info("OSCServer : IP = %s inPort = %d Buffer Size = %d", ip, inPort, self.buffer_size)
         except Exception as e:
-            log.info("Server connection error:\n" + str(e))
+            log.critical("Server connection error:\n" + str(e))
+            exit(0)
 
     def _connectClient(self):
         # Init OSC Client
@@ -59,12 +56,12 @@ class Network(object):
         return (msg)
 
     def sendOsc(self, msg) :
-        # log.debug("sending data: %s", msg)
+        log.debug("sending data: %s", msg)
         try:
             self._client.send(msg)
             msg.clearData();
         except Exception as e:
-            # log.debug("Send Error! message not sent:\n" + str(msg) + str(e))
+            log.error("Send Error! message not sent:\n" + str(msg) + str(e))
             msg.clearData();
     
     def sendOscWavPlayback(self, msg):
@@ -73,7 +70,7 @@ class Network(object):
             self._wavClient.send(msg)
             msg.clearData();
         except Exception as e:
-            # log.debug("Send Error! message not sent:\n" + str(msg) + str(e))
+            log.error("Send Error! message not sent:\n" + str(msg) + str(e))
             msg.clearData();  
                  
     def sendParams(self, data, instrument):
@@ -85,11 +82,22 @@ class Network(object):
             self._msg.append(data[i])
         self.sendOsc(self._msg)
 
-    def sendState(self, data, instrument):
-        objId = int(data[0][8])
-        instrument[objId]["active"] = data[2]
+    def sendState(self, objId, state):
         self._msg.append(objId)
-        self._msg.append(instrument[objId]["active"])
+        self._msg.append(state)
+        self.sendOsc(self._msg)
+
+    def sendAllObjectStates(self, instrument):
+        for i, inst in enumerate(instrument):
+            self._msg.append(i)
+            self._msg.append(inst["active"])
+            for k in range(5):
+                self._msg.append(0)
+            self.sendOsc(self._msg)
+
+    def sendEmulatedParams(self, data):
+        for i in data:
+            self._msg.append(i)
         self.sendOsc(self._msg)
 
     def sendObjectNotConnected(self, objectId):

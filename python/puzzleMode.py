@@ -2,11 +2,12 @@
 # puzzleMode.py
 #
 
-from logger import log
+import time
 import socket
 import json
 import threading
 
+from logger import log
 from CONST import *
 from AudioPlay import AudioPlay 
 from GameMode import GameMode
@@ -15,8 +16,7 @@ from GameMode import GameMode
 class Puzzle(GameMode):
     
     def __init__(self, net):
-        GameMode.__init__(self)
-        self.net = net
+        GameMode.__init__(self, net)
         self.levelNum = 0
         self.totalLevels = 1
         self.step = SPEAK_PUZZLE_MODE
@@ -24,11 +24,11 @@ class Puzzle(GameMode):
                     'data': []
         }
         self._importJSON();
-        self._audio = AudioPlay(net)
-        self.instructionsPlaying = False
+        
         self._callbackDict = {
             'speakPuzzleModeCallback': self._speakPuzzleModeCallback,
             'speakLevelNumberCallback': self._speakLevelNumberCallback,
+            'speakListenExampleCallback': self._speakListenExampleCallback,
             'speakInstructionsCallback': self._speakInstructionsCallback,
             'failureCallback': self._failureCallback,
             'successCallback': self._successCallback,
@@ -45,26 +45,23 @@ class Puzzle(GameMode):
 # ================================================================================
 
     def run(self, data):
-        GameMode.killOfflineObjects(self, data)
+        GameMode.run(self, data)
         self._callbackListen(data)
         if self.step == SPEAK_PUZZLE_MODE:
             self._speakPuzzleMode()
         if self.step == SPEAK_LEVEL_NUMBER:
             self._speakLevelNumber()
-        if self.step == SPEAK_INSTRUCTIONS:            
+        if self.step == SPEAK_LISTEN_EXAMPLE:            
+            self._speakListenExample()
+        if self.step == EMULATE_INSTRUMENT:
+            self._emulateInstrument(data)
+        if self.step == SPEAK_INSTRUCTIONS:
             self._speakInstructions()
         if self.step == PLAY_LEVEL:
             self._playLevel(data)
 
     def setStep(self, step):
-        if step == 'SPEAK_PUZZLE_MODE':
-            self.step = SPEAK_LEVEL_NUMBER
-        if step == 'SPEAK_LEVEL_NUMBER':
-            self.step = SPEAK_LEVEL_NUMBER
-        if step == 'SPEAK_INSTRUCTIONS':
-            self.step = SPEAK_INSTRUCTIONS
-        if step == 'PLAY_LEVEL':
-            self.step = PLAY_LEVEL
+        self.step = step
     
     def incrementLevel(self):
         self.levelNum = (self.levelNum + 1) % self.totalLevels
@@ -78,8 +75,9 @@ class Puzzle(GameMode):
         self.levelNum = 0
 
 # ================================================================================
-#   Private
 # ================================================================================
+#   Private
+
 
     def _callbackListen(self, data):
         if data and 'callback' in data[0]:
@@ -88,8 +86,9 @@ class Puzzle(GameMode):
             except:
                 pass
 
+    
 # ================================================================================
-#   Game states : playStart, playInstructions, playGame :
+#   Game states :
 # ================================================================================
 
     def _speakPuzzleMode(self):
@@ -115,13 +114,49 @@ class Puzzle(GameMode):
                 args=(path, 'speakLevelNumberCallback',)).start()
 
     def _speakLevelNumberCallback(self):
-        self.step = SPEAK_INSTRUCTIONS
+        self.step = SPEAK_LISTEN_EXAMPLE
         self._audio.instructionsPlaying = False
+
+    def _speakListenExample(self):
+        if not self._audio.instructionsPlaying:
+            self._audio.instructionsPlaying = True
+            log.info( '-- speak: Ecoute le modele' )
+            path = ASSETS_FOLDER + 'audio/a_toi_de_jouer.wav'
+            threading.Thread(
+                target=self._audio.playback, 
+                args=(path, 'speakListenExampleCallback',)).start()
+    
+    def _speakListenExampleCallback(self):
+        self.step = EMULATE_INSTRUMENT
+        self._audio.instructionsPlaying = False
+
+    def _emulateInstrument(self, data):
+        if data and 'state' in data[0]:
+            objId = int(data[0][8])
+            GameMode.instrument[objId]["active"] = data[2]
+        if not self._audio.instructionsPlaying:
+            self._audio.instructionsPlaying = True
+            self._startTime = time.time()
+            log.info( '-- audio: play model :D ' )
+            output = []
+            answer = self.puzzleData[self.levelNum]
+            output.append(answer[0]['objectId'])
+            output.append(1) # state = active
+            output.append(0) # preset = 0
+            for i in range(len(answer[0]['values'])):
+                output.append(answer[0]['values'][i])
+            self.net.sendEmulatedParams(output)
+        if self._startTime and (time.time() - self._startTime) > 2:
+            log.debug('finished playing')
+            
+            self._startTime = None
+            self.step = SPEAK_INSTRUCTIONS
+            self._audio.instructionsPlaying = False
 
     def _speakInstructions(self):
         if not self._audio.instructionsPlaying:
             self._audio.instructionsPlaying = True
-            log.info( 'ecoute le modele' )
+            log.info( '-- speak: A toi de jouer! ' )
             path = ASSETS_FOLDER + 'audio/a_toi_de_jouer.wav'
             threading.Thread(
                 target=self._audio.playback, 
@@ -130,19 +165,22 @@ class Puzzle(GameMode):
     def _speakInstructionsCallback(self):
         self.step = PLAY_LEVEL
         self._audio.instructionsPlaying = False
+        # Last callback, update all objects state:
+        self.net.sendAllObjectStates(GameMode.instrument)
 
     def _playLevel(self, data):
         if not data:
             return
         if 'params' in data[0]:
             log.debug(data)
-            self.net.sendParams(data, self._instrument)
+            self.net.sendParams(data, GameMode.instrument)
             self.params = {
                 'objectId': int(data[0][8]),
                 'data': data[2:]
             }
         elif 'state' in data[0]:
-            self.net.sendState(data, self._instrument)
+            objId = int(data[0][8])
+            self.net.sendState(objId, GameMode.instrument[objId]["active"])
         elif 'presetChange' in data[0]:
             self._validateLevel()
 

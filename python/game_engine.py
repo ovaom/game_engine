@@ -37,7 +37,7 @@ class Button(Observer):
             GPIO.setRepeatLED(data)
         if data:
             puzzle.stopAudio()
-            puzzle.setStep('SPEAK_INSTRUCTIONS')
+            puzzle.setStep(SPEAK_LISTEN_EXAMPLE)
 
     def skipClick(self, data):
         if game['mode'] == PUZZLE:
@@ -63,8 +63,8 @@ def getInputs():
 def getOscData():
     try:
         data = net.receiveOsc()
-        if not 'ping' in data[0] and not 'battery' in data[0] and not 'params' in data[0] :
-            log.debug(data)
+        # if not 'ping' in data[0] and not 'battery' in data[0] and not 'params' in data[0] :
+        log.debug(data)
     except socket.error as e:
         return None
     else:
