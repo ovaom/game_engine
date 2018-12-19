@@ -11,7 +11,7 @@ from logger import log
 from CONST import *
 from AudioPlay import AudioPlay 
 from GameMode import GameMode
-
+import game_data
 
 class Puzzle(GameMode):
     
@@ -37,8 +37,10 @@ class Puzzle(GameMode):
     def _importJSON(self):
         jsonFile = open('/home/pi/Documents/ovaom/python/assets/puzzle.json', 'r')
         fileAsString = jsonFile.read()
-        self.puzzleData = json.loads(fileAsString)
+        # self.puzzleData = json.loads(fileAsString)
+        self.puzzleData = game_data.data
         self.totalLevels = len(self.puzzleData)
+        self.audioPaths = game_data.paths
 
 # ================================================================================
 #   Public
@@ -108,7 +110,7 @@ class Puzzle(GameMode):
         if not self._audio.instructionsPlaying:
             self._audio.instructionsPlaying = True
             log.info( 'Puzzle numero ' + str(self.levelNum + 1) )
-            path = ASSETS_FOLDER + 'audio/' + str(self.levelNum + 1) + '/puzzle.wav'
+            path = ASSETS_FOLDER + 'audio/puzzleNum/' + str(self.levelNum + 1) + '.wav'
             threading.Thread(
                 target=self._audio.playback, 
                 args=(path, 'speakLevelNumberCallback',)).start()
@@ -121,7 +123,7 @@ class Puzzle(GameMode):
         if not self._audio.instructionsPlaying:
             self._audio.instructionsPlaying = True
             log.info( '-- speak: Ecoute le modele' )
-            path = ASSETS_FOLDER + 'audio/a_toi_de_jouer.wav'
+            path = ASSETS_FOLDER + 'audio/ecoute_le_modele.wav'
             threading.Thread(
                 target=self._audio.playback, 
                 args=(path, 'speakListenExampleCallback',)).start()
@@ -156,8 +158,8 @@ class Puzzle(GameMode):
     def _speakInstructions(self):
         if not self._audio.instructionsPlaying:
             self._audio.instructionsPlaying = True
-            log.info( '-- speak: A toi de jouer! ' )
-            path = ASSETS_FOLDER + 'audio/a_toi_de_jouer.wav'
+            log.info( '-- speak: Instructions audio! ' )
+            path = self.audioPaths[self.levelNum]
             threading.Thread(
                 target=self._audio.playback, 
                 args=(path, 'speakInstructionsCallback',)).start()
@@ -238,6 +240,6 @@ class Puzzle(GameMode):
                 args=(path, 'successCallback',)).start()
 
     def _successCallback(self):
-        self.incrementLevel()
-        self.step = SPEAK_LEVEL_NUMBER
+        # self.incrementLevel()
+        self.step = PLAY_LEVEL
         self._audio.instructionsPlaying = False

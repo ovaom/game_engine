@@ -56,7 +56,7 @@ class Network(object):
         return (msg)
 
     def sendOsc(self, msg) :
-        log.debug("sending data: %s", msg)
+        # log.debug("sending data: %s", msg)
         try:
             self._client.send(msg)
             msg.clearData();
