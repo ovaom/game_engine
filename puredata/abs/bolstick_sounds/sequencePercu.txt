@@ -22,4 +22,3 @@
 125 notes_seq_percu 22;
 119 notes_seq_percu 23;
 140 notes_seq_percu 24;
-234 notes_seq_percu 25;

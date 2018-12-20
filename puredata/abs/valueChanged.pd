@@ -1,6 +1,6 @@
-#N canvas 403 138 1277 734 10;
+#N canvas 163 42 1277 734 10;
 #X obj 115 34 loadbang;
-#X obj 212 33 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
+#X obj 183 35 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
 -1;
 #X obj 53 97 !=, f 4;
 #X obj 25 160 spigot 0;

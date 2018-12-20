@@ -1,4 +1,4 @@
-#N canvas 388 147 1252 828 10;
+#N canvas 242 152 1287 844 10;
 #X declare -path abs;
 #X declare -path abs/Chords-Roll;
 #X declare -path abs/grelot_sounds;
@@ -119,10 +119,10 @@
 #X obj 33 672 declare -path abs/Chords-Roll;
 #X obj 465 747 dac~;
 #X obj 40 351 SD-grelotv2;
-#N canvas 560 150 1030 801 instructionsPlayer 0;
+#N canvas 269 108 1055 802 instructionsPlayer 0;
 #X obj 543 64 loadbang;
-#X msg 567 166 disconnect;
-#N canvas 920 226 759 551 Rpi_sendOSC 0;
+#X msg 613 206 disconnect;
+#N canvas 921 55 759 551 Rpi_sendOSC 0;
 #X obj 33 252 netsend -u -b;
 #X obj 63 189 list prepend send;
 #X obj 63 214 list trim;
@@ -133,15 +133,14 @@
 -1;
 #X text 31 44 SOUNDDEVICE0;
 #X obj 64 141 oscformat callback;
-#X msg 198 86 symbol test;
 #X connect 1 0 2 0;
 #X connect 2 0 0 0;
 #X connect 4 0 0 0;
 #X connect 4 0 6 0;
 #X connect 5 0 8 0;
 #X connect 8 0 1 0;
-#X connect 9 0 8 0;
-#X restore 544 250 pd Rpi_sendOSC;
+#X restore 544 270 pd Rpi_sendOSC;
+#X msg 554 158 connect localhost 9001;
 #X obj 31 55 loadbang;
 #X obj 29 148 oscparse;
 #X obj 44 187 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
@@ -158,71 +157,76 @@
 #X obj 194 661 symbol;
 #X obj 99 507 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
 -1;
-#X obj 149 665 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+#X obj 168 662 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
-#X msg 260 531 start;
+#X msg 290 531 start;
 #X msg 87 545 open \$1;
 #X obj 143 506 print fileURL;
-#X obj 260 505 pipe 5;
+#X obj 290 505 pipe 5;
 #X obj 226 687 print callback \$2;
 #X obj 87 772 outlet~;
 #X msg 266 428 1;
-#X msg 235 754 0;
-#X text 271 754 player instruction off;
+#X msg 194 802 0;
+#X text 225 801 player instruction off;
 #X text 301 428 player instruction on;
 #X text 628 368 TEST;
 #X msg 749 453 symbol callBack;
 #X obj 67 257 s \$0-fileURL;
 #X obj 167 257 s \$0-callbackFunction;
 #X obj 233 635 r \$0-callbackFunction;
-#X obj 193 715 s \$0-OSCcallback;
-#X obj 638 430 s \$0-fileURL;
+#X obj 222 779 s \$0-OSCcallback;
 #X obj 748 482 s \$0-callbackFunction;
-#X obj 479 776 outlet;
-#X obj 250 736 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
--1 -1;
-#X obj 264 405 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+#X obj 265 827 outlet;
+#X obj 265 409 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
 #X obj 87 390 r \$0-fileURL;
-#X obj 265 662 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+#X obj 247 661 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
-#X msg 637 396 symbol abs/instructions_sounds/02_puzzleNb.wav;
-#X msg 542 132 connect 192.168.4.1 9001;
-#X obj 639 217 r \$0-OSCcallback;
-#X connect 0 0 42 0;
+#X msg 543 105 connect 192.168.4.1 9001;
+#X text 578 85 IP du Raspberry;
+#X text 560 137 pour test sur l'ordi;
+#X obj 639 243 r \$0-OSCcallback;
+#X obj 637 430 s \$0-fileURL;
+#X msg 637 396 symbol abs/instructions_sounds/000_generique_aToiDeJouer.WAV
+;
+#X msg 390 704 clear;
+#X obj 195 736 pipe 500;
+#X obj 390 681 r \$0-fileURL;
+#X connect 0 0 40 0;
 #X connect 1 0 2 0;
-#X connect 3 0 6 0;
-#X connect 4 0 5 0;
-#X connect 4 0 8 0;
-#X connect 4 0 9 0;
-#X connect 6 0 7 0;
-#X connect 7 0 4 0;
-#X connect 8 1 30 0;
-#X connect 8 2 31 0;
-#X connect 14 0 23 0;
-#X connect 14 1 17 0;
-#X connect 14 1 15 0;
-#X connect 15 0 22 0;
-#X connect 15 0 25 0;
-#X connect 15 0 33 0;
-#X connect 15 0 37 0;
-#X connect 18 0 14 0;
-#X connect 19 0 14 0;
-#X connect 21 0 18 0;
-#X connect 24 0 36 0;
+#X connect 4 0 7 0;
+#X connect 5 0 6 0;
+#X connect 5 0 9 0;
+#X connect 5 0 10 0;
+#X connect 7 0 8 0;
+#X connect 8 0 5 0;
+#X connect 9 1 31 0;
+#X connect 9 2 32 0;
+#X connect 15 0 24 0;
+#X connect 15 1 18 0;
+#X connect 15 1 16 0;
+#X connect 16 0 23 0;
+#X connect 16 0 26 0;
+#X connect 16 0 34 0;
+#X connect 19 0 15 0;
+#X connect 20 0 15 0;
+#X connect 22 0 19 0;
 #X connect 25 0 36 0;
-#X connect 29 0 35 0;
-#X connect 32 0 15 1;
-#X connect 32 0 40 0;
-#X connect 39 0 16 0;
-#X connect 39 0 20 0;
-#X connect 39 0 21 0;
-#X connect 39 0 19 0;
-#X connect 39 0 24 0;
-#X connect 39 0 38 0;
-#X connect 41 0 34 0;
-#X connect 42 0 2 0;
+#X connect 26 0 36 0;
+#X connect 30 0 35 0;
+#X connect 33 0 16 1;
+#X connect 33 0 39 0;
+#X connect 38 0 17 0;
+#X connect 38 0 21 0;
+#X connect 38 0 22 0;
+#X connect 38 0 20 0;
+#X connect 38 0 25 0;
+#X connect 38 0 37 0;
+#X connect 40 0 2 0;
 #X connect 43 0 2 1;
+#X connect 45 0 44 0;
+#X connect 46 0 47 0;
+#X connect 48 0 46 0;
 #X restore 887 49 pd instructionsPlayer;
 #X obj 33 694 declare -path abs/grelot_sounds;
 #X obj 176 386 SD-ocarinav2;
@@ -248,15 +252,15 @@
 #X obj 847 392 s \$0-volumePlayerInstructions;
 #X text 679 261 SWITCH SOUND BETWEEN DEVICES AND INSTRUCTIONS PLAYER
 ;
-#X obj 638 615 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+#X obj 638 545 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
-#X obj 394 580 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+#X obj 394 497 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
-#X obj 562 554 r~ \$0-soundInstructions;
-#X obj 580 589 r \$0-volumePlayerInstructions;
-#X obj 331 553 r \$0-volumeDevices;
-#X floatatom 347 581 5 0 0 0 - - -, f 5;
-#X floatatom 594 614 5 0 0 0 - - -, f 5;
+#X obj 562 497 r~ \$0-soundInstructions;
+#X obj 580 520 r \$0-volumePlayerInstructions;
+#X obj 331 469 r \$0-volumeDevices;
+#X floatatom 347 498 5 0 0 0 - - -, f 5;
+#X floatatom 594 545 5 0 0 0 - - -, f 5;
 #X obj 1031 83 s \$0-playerInstructions;
 #X obj 682 294 r \$0-playerInstructions;
 #X obj 658 366 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
@@ -268,6 +272,11 @@
 #X msg 216 16 1;
 #X obj 887 128 s~ \$0-soundInstructions;
 #X msg 847 363 1;
+#X obj 367 634 *~ 0.5;
+#X obj 331 554 line;
+#X obj 580 589 line;
+#X msg 331 531 \$1 200;
+#X msg 580 566 \$1 200;
 #X connect 2 0 3 0;
 #X connect 2 0 0 0;
 #X connect 4 0 19 0;
@@ -306,15 +315,20 @@
 #X connect 38 1 39 0;
 #X connect 39 0 40 0;
 #X connect 41 0 40 0;
-#X connect 42 0 5 0;
+#X connect 42 0 62 0;
 #X connect 43 0 44 0;
 #X connect 48 0 37 0;
-#X connect 49 0 37 1;
 #X connect 49 0 46 0;
 #X connect 49 0 52 0;
-#X connect 50 0 42 1;
+#X connect 49 0 66 0;
 #X connect 50 0 47 0;
 #X connect 50 0 51 0;
+#X connect 50 0 65 0;
 #X connect 54 0 38 0;
 #X connect 59 0 58 0;
 #X connect 61 0 44 0;
+#X connect 62 0 5 0;
+#X connect 63 0 42 1;
+#X connect 64 0 37 1;
+#X connect 65 0 63 0;
+#X connect 66 0 64 0;
