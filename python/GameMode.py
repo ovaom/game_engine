@@ -23,6 +23,7 @@ class GameMode(object):
         self.net = net
         self._audio = AudioPlay(net)
         self.instructionsPlaying = False
+        self.net.sendAllObjectsIdle()
 
     def run(self, data):
         self._storeObjectsState(data)
@@ -47,7 +48,6 @@ class GameMode(object):
         if data and 'state' in data[0]:
             objId = int(data[0][8])
             GameMode.instrument[objId]["active"] = data[2]
-            
             
 
 

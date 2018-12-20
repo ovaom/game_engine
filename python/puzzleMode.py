@@ -61,6 +61,8 @@ class Puzzle(GameMode):
             self._speakInstructions()
         if self.step == PLAY_LEVEL:
             self._playLevel(data)
+        if self.step == WAIT_USER_INPUT:
+            self._waitUserInput()
 
     def setStep(self, step):
         self.step = step
@@ -96,6 +98,7 @@ class Puzzle(GameMode):
     def _speakPuzzleMode(self):
         if not self._audio.instructionsPlaying:
             self._audio.instructionsPlaying = True
+            self.net.sendAllObjectsIdle()
             log.info( '*** PUZZLE MODE ***' )
             path = ASSETS_FOLDER + 'audio/puzzle_mode.wav'
             threading.Thread(
@@ -109,6 +112,7 @@ class Puzzle(GameMode):
     def _speakLevelNumber(self):
         if not self._audio.instructionsPlaying:
             self._audio.instructionsPlaying = True
+            self.net.sendAllObjectsIdle()
             log.info( 'Puzzle numero ' + str(self.levelNum + 1) )
             path = ASSETS_FOLDER + 'audio/puzzleNum/' + str(self.levelNum + 1) + '.wav'
             threading.Thread(
@@ -122,6 +126,7 @@ class Puzzle(GameMode):
     def _speakListenExample(self):
         if not self._audio.instructionsPlaying:
             self._audio.instructionsPlaying = True
+            self.net.sendAllObjectsIdle()
             log.info( '-- speak: Ecoute le modele' )
             path = ASSETS_FOLDER + 'audio/ecoute_le_modele.wav'
             threading.Thread(
@@ -133,11 +138,12 @@ class Puzzle(GameMode):
         self._audio.instructionsPlaying = False
 
     def _emulateInstrument(self, data):
-        if data and 'state' in data[0]:
-            objId = int(data[0][8])
-            GameMode.instrument[objId]["active"] = data[2]
+        # if data and 'state' in data[0]:
+        #     objId = int(data[0][8])
+        #     GameMode.instrument[objId]["active"] = data[2]
         if not self._audio.instructionsPlaying:
             self._audio.instructionsPlaying = True
+            self.net.sendAllObjectsIdle()
             self._startTime = time.time()
             log.info( '-- audio: play model :D ' )
             output = []
@@ -148,7 +154,7 @@ class Puzzle(GameMode):
             for i in range(len(answer[0]['values'])):
                 output.append(answer[0]['values'][i])
             self.net.sendEmulatedParams(output)
-        if self._startTime and (time.time() - self._startTime) > 2:
+        if self._startTime and (time.time() - self._startTime) > 7:
             log.debug('finished playing')
             
             self._startTime = None
@@ -158,6 +164,7 @@ class Puzzle(GameMode):
     def _speakInstructions(self):
         if not self._audio.instructionsPlaying:
             self._audio.instructionsPlaying = True
+            self.net.sendAllObjectsIdle()
             log.info( '-- speak: Instructions audio! ' )
             path = self.audioPaths[self.levelNum]
             threading.Thread(
@@ -174,7 +181,6 @@ class Puzzle(GameMode):
         if not data:
             return
         if 'params' in data[0]:
-            log.debug(data)
             self.net.sendParams(data, GameMode.instrument)
             self.params = {
                 'objectId': int(data[0][8]),
@@ -241,5 +247,11 @@ class Puzzle(GameMode):
 
     def _successCallback(self):
         # self.incrementLevel()
-        self.step = PLAY_LEVEL
+        self.step = WAIT_USER_INPUT
         self._audio.instructionsPlaying = False
+
+    def _waitUserInput(self):
+        if not self._audio.instructionsPlaying:
+            self._audio.instructionsPlaying = True
+            log.info('-- sending allObjectsIdle, waiting for user input')
+            self.net.sendAllObjectsIdle()

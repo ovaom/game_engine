@@ -11,6 +11,9 @@ import time
 
 
 class Network(object):
+    ''' Network class. This class handles incoming data from objects,
+    and sends data to the sound engine to play instrument sounds
+    and instructions '''
     def __init__(self):
         self._connectServer()
         self._connectClient()
@@ -56,7 +59,8 @@ class Network(object):
         return (msg)
 
     def sendOsc(self, msg) :
-        # log.debug("sending data: %s", msg)
+        ''' Send OSC data to the sound engine '''
+        log.debug("sending data: %s", msg)
         try:
             self._client.send(msg)
             msg.clearData();
@@ -65,6 +69,8 @@ class Network(object):
             msg.clearData();
     
     def sendOscWavPlayback(self, msg):
+        ''' Send OSC data to the sound engine of the port used to playback
+        game instructions '''
         # log.debug("sending wav playback data: %s", msg)
         try:
             self._wavClient.send(msg)
@@ -88,6 +94,7 @@ class Network(object):
         self.sendOsc(self._msg)
 
     def sendAllObjectStates(self, instrument):
+        ''' Send the object state of all objects at once '''
         for i, inst in enumerate(instrument):
             self._msg.append(i)
             self._msg.append(inst["active"])
@@ -96,11 +103,18 @@ class Network(object):
             self.sendOsc(self._msg)
 
     def sendEmulatedParams(self, data):
+        ''' Emulate object data parameters. Used to play model audio of puzzle '''
         for i in data:
             self._msg.append(i)
         self.sendOsc(self._msg)
 
     def sendObjectNotConnected(self, objectId):
+        ''' Send a state=0 for object '''
         self._msg.append(objectId)
         self._msg.append(0) # 0 = object is inactive
         self.sendOsc(self._msg)
+
+    def sendAllObjectsIdle(self):
+        ''' Send a state=0 for all objects '''
+        for obj in range(4):
+            self.sendObjectNotConnected(obj)

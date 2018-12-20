@@ -61,10 +61,12 @@ def getInputs():
         Event('skipClick', val4)
 
 def getOscData():
+    ''' Receive OSC data from objects and puredata and store it into a 'data'
+    variable that is passed down '''
     try:
         data = net.receiveOsc()
-        if not 'ping' in data[0] and not 'battery' in data[0] :
-            log.debug(data)
+        # if not 'ping' in data[0] and not 'battery' in data[0]:
+        #     log.debug('Incoming Data: %s', data)
     except socket.error as e:
         return None
     else:

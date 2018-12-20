@@ -77,6 +77,8 @@ class Jungle(GameMode):
             self.net.sendState(objId, GameMode.instrument[objId]["active"])
         elif 'presetChange' in data[0] :
             objId = int(data[0][8])
-            GameMode.instrument[objId]['currentPreset'] = (GameMode.instrument[objId]['currentPreset'] + 1) % GameMode.instrument[objId]['maxPreset']
+            newPreset = GameMode.instrument[objId]['currentPreset'] + 1
+            maxPreset = GameMode.instrument[objId]['maxPreset']
+            GameMode.instrument[objId]['currentPreset'] = newPreset % maxPreset
             log.debug('Preset is now ' + str(GameMode.instrument[objId]['currentPreset']))
 

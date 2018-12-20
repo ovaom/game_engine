@@ -156,14 +156,14 @@ data = [
     { # Success condition 1:
       "objectId": 3,
       "tolerance": [
-        0,
-        0,
-        1
+        0.2,
+        0.2,
+        0.2
       ],
       "values": [
         0,
         0,
-        0.2
+        1
       ]
     }
   ],
@@ -236,14 +236,12 @@ paths = [
   INSTRUCTIONS_FOLDER + '000_generique_aToiDeJouer.WAV', # level5
   INSTRUCTIONS_FOLDER + '000_generique_aTonTour.WAV', # level6
   INSTRUCTIONS_FOLDER + '000_generique_trouveInstrumentClique.WAV', # level7
-  INSTRUCTIONS_FOLDER + '08_corail01.WAV', # level8
-  INSTRUCTIONS_FOLDER + '08_corail01.WAV', # level9
-  INSTRUCTIONS_FOLDER + '08_corail01.WAV', # level10
+  INSTRUCTIONS_FOLDER + '000_generique_aTonTour.WAV', # level8
+  INSTRUCTIONS_FOLDER + '000_generique_aToiDeJouer.WAV', # level9
+  INSTRUCTIONS_FOLDER + '000_generique_aTonTour.WAV', # level10
   INSTRUCTIONS_FOLDER + '000_generique_trouveInstrumentClique.WAV', # level11
-  INSTRUCTIONS_FOLDER + '12_bolstick01.WAV', # level12
-  INSTRUCTIONS_FOLDER + '12_bolstick02.WAV', # level13
-  INSTRUCTIONS_FOLDER + '01_ocarina01.WAV', # level14
-  INSTRUCTIONS_FOLDER + '01_ocarina01.WAV', # level15
-  INSTRUCTIONS_FOLDER + '01_ocarina01.WAV', # level16
+  INSTRUCTIONS_FOLDER + '000_generique_aToiDeJouer.WAV', # level12
+  INSTRUCTIONS_FOLDER + '000_generique_aTonTour.WAV', # level13
+
 
 ]
