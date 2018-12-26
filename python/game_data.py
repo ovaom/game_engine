@@ -158,12 +158,12 @@ data = [
       "tolerance": [
         0.2,
         0.2,
-        0.2
+        0.3
       ],
       "values": [
         0,
         0,
-        1
+        0.5
       ]
     }
   ],
@@ -172,16 +172,14 @@ data = [
     { # Success condition 1:
       "objectId": 2,
       "tolerance": [
-        0,
-        0,
-        0,
-        0
+        1,
+        1,
+        1
       ],
       "values": [
         0,
         0,
-        0,
-        1
+        0
       ]
     }
   ],
@@ -190,16 +188,14 @@ data = [
     { # Success condition 1:
       "objectId": 2,
       "tolerance": [
-        0,
-        0,
-        0,
-        0
+        1,
+        1,
+        0.2
       ],
       "values": [
-        0,
-        0,
-        0,
-        1
+        0.5,
+        0.5,
+        0.5
       ]
     }
   ],
@@ -208,16 +204,14 @@ data = [
     { # Success condition 1:
       "objectId": 2,
       "tolerance": [
-        0,
-        0,
-        0,
-        0
+        0.2,
+        0.2,
+        0.2
       ],
       "values": [
-        0,
-        0,
-        0,
-        1
+        1,
+        1,
+        0.5
       ]
     }
   ]
