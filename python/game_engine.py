@@ -65,8 +65,8 @@ def getOscData():
     variable that is passed down '''
     try:
         data = net.receiveOsc()
-        # if not 'ping' in data[0] and not 'battery' in data[0]:
-        #     log.debug('Incoming Data: %s', data)
+        if not 'ping' in data[0] and not 'battery' in data[0]:
+            log.debug('Incoming Data: %s', data)
     except socket.error as e:
         return None
     else:

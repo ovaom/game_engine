@@ -42,6 +42,7 @@ class GameMode(object):
             log.debug('change in offline objects list: %s', offline_objects)
             for obj in offline_objects:
                 self.net.sendObjectNotConnected(obj)
+                GameMode.instrument[obj]['active'] = 0
             GameMode.prev_offline_objects = list(offline_objects)
 
     def _storeObjectsState(self, data):
