@@ -9,6 +9,10 @@ PUZZLE = 1
 # Assets folder path
 ASSETS_FOLDER = '/home/pi/Documents/ovaom/python/assets/'
 
+# GPIO
+OFF = 0
+ON  = 1
+
 # Jungle mode steps
 SPEAK_JUNGLE_MODE = 0
 PLAY_JUNGLE_MODE = 1

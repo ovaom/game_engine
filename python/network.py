@@ -60,7 +60,7 @@ class Network(object):
 
     def sendOsc(self, msg) :
         ''' Send OSC data to the sound engine '''
-        log.debug("sending data: %s", msg)
+        # log.debug("sending data: %s", msg)
         try:
             self._client.send(msg)
             msg.clearData();

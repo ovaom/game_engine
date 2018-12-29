@@ -15,8 +15,9 @@ import game_data
 
 class Puzzle(GameMode):
     
-    def __init__(self, net):
+    def __init__(self, net, gpio):
         GameMode.__init__(self, net)
+        self.gpio = gpio
         self.levelNum = 0
         self.totalLevels = 1
         self.step = SPEAK_PUZZLE_MODE
@@ -113,6 +114,7 @@ class Puzzle(GameMode):
         if not self._audio.instructionsPlaying:
             self._audio.instructionsPlaying = True
             self.net.sendAllObjectsIdle()
+            self.gpio.blinkLED(False)
             log.info( 'Puzzle numero ' + str(self.levelNum + 1) )
             path = ASSETS_FOLDER + 'audio/puzzleNum/' + str(self.levelNum + 1) + '.wav'
             threading.Thread(
@@ -143,6 +145,7 @@ class Puzzle(GameMode):
         #     GameMode.instrument[objId]["active"] = data[2]
         if not self._audio.instructionsPlaying:
             self._audio.instructionsPlaying = True
+            self.gpio.setRepeatLED(ON)
             self.net.sendAllObjectsIdle()
             self._startTime = time.time()
             log.info( '-- audio: play model :D ' )
@@ -156,9 +159,9 @@ class Puzzle(GameMode):
             self.net.sendEmulatedParams(output)
         if self._startTime and (time.time() - self._startTime) > 7:
             log.debug('finished playing')
-            
             self._startTime = None
             self.step = SPEAK_INSTRUCTIONS
+            self.gpio.setRepeatLED(OFF)
             self._audio.instructionsPlaying = False
 
     def _speakInstructions(self):
@@ -255,3 +258,4 @@ class Puzzle(GameMode):
             self._audio.instructionsPlaying = True
             log.info('-- sending allObjectsIdle, waiting for user input')
             self.net.sendAllObjectsIdle()
+        self.gpio.blinkLED()

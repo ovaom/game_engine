@@ -65,7 +65,7 @@ def getOscData():
     variable that is passed down '''
     try:
         data = net.receiveOsc()
-        if not 'ping' in data[0] and not 'battery' in data[0]:
+        if not 'ping' in data[0] and not 'battery' in data[0] and not 'params' in data[0]:
             log.debug('Incoming Data: %s', data)
     except socket.error as e:
         return None
@@ -90,7 +90,7 @@ if __name__ == '__main__':
     GPIO = GPIO.InOut(game)
     v = volume.VolumeCtrl(GPIO)
     jungle = jungleMode.Jungle(net)
-    puzzle = puzzleMode.Puzzle(net)
+    puzzle = puzzleMode.Puzzle(net, GPIO)
 
     btn = Button()
     btn.observe('puzzleClick', btn.puzzleClick)

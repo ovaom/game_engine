@@ -6,7 +6,7 @@ from logger import log
 import time
 from AudioPlay import AudioPlay
 
-INACTIVE_THRESHOLD = 4 # in seconds
+INACTIVE_THRESHOLD = 5 # in seconds
 
 class GameMode(object):
     ''' GameMode Class: puzzleMode and jungleMode must inherit from this class '''
