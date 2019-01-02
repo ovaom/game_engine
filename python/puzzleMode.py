@@ -128,6 +128,7 @@ class Puzzle(GameMode):
     def _speakListenExample(self):
         if not self._audio.instructionsPlaying:
             self._audio.instructionsPlaying = True
+            self.gpio.blinkLED(False)
             self.net.sendAllObjectsIdle()
             log.info( '-- speak: Ecoute le modele' )
             path = ASSETS_FOLDER + 'audio/ecoute_le_modele.wav'
