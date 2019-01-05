@@ -76,8 +76,11 @@ class Puzzle(GameMode):
         self._audio.stop()
 
     def reset(self):
+        self.gpio.blinkLED(False)
         self.step = SPEAK_PUZZLE_MODE
         self.levelNum = 0
+        for i in GameMode.instrument:
+            i['currentPreset'] = 0
 
 # ================================================================================
 # ================================================================================
@@ -255,8 +258,8 @@ class Puzzle(GameMode):
         self._audio.instructionsPlaying = False
 
     def _waitUserInput(self):
+        self.gpio.blinkLED()
         if not self._audio.instructionsPlaying:
             self._audio.instructionsPlaying = True
             log.info('-- sending allObjectsIdle, waiting for user input')
             self.net.sendAllObjectsIdle()
-        self.gpio.blinkLED()

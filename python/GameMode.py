@@ -31,7 +31,7 @@ class GameMode(object):
 
     def _killOfflineObjects(self, data):
         offline_objects = []
-        if data and 'ping' in data[0]:
+        if data and ('ping' in data[0] or 'params' in data[0]):
             objId = int(data[2])
             GameMode.instrument[objId]['lastSeen'] = time.time()
         for i, instr in enumerate(GameMode.instrument):
@@ -49,6 +49,10 @@ class GameMode(object):
         if data and 'state' in data[0]:
             objId = int(data[0][8])
             GameMode.instrument[objId]["active"] = data[2]
-            
-
-
+        if data and 'ping' in data[0]:
+            objId = int(data[2])
+            state = int(data[3])  
+            if state != GameMode.instrument[objId]['active']:
+                log.debug('Notice: object state %d out of sync, resync', objId)
+                self.net.sendState(objId, state)
+                GameMode.instrument[objId]['active'] = state

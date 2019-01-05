@@ -35,6 +35,8 @@ class Jungle(GameMode):
             self._playJungleMode(data)
 
     def reset(self):
+        for i in GameMode.instrument:
+            i['currentPreset'] = 0
         self._step = SPEAK_JUNGLE_MODE
 
     def stopAudio(self):
@@ -70,15 +72,16 @@ class Jungle(GameMode):
     def _playJungleMode(self, data):
         if not data:
             return
-        if 'params' in data[0]:
-            self.net.sendParams(data, GameMode.instrument)
+        
         elif 'state' in data[0]:
             objId = int(data[0][8])
             self.net.sendState(objId, GameMode.instrument[objId]["active"])
-        elif 'presetChange' in data[0] :
+        if 'presetChange' in data[0]:
             objId = int(data[0][8])
             newPreset = GameMode.instrument[objId]['currentPreset'] + 1
             maxPreset = GameMode.instrument[objId]['maxPreset']
-            GameMode.instrument[objId]['currentPreset'] = newPreset % maxPreset
-            log.debug('Preset is now ' + str(GameMode.instrument[objId]['currentPreset']))
-
+            preset = GameMode.instrument[objId]['currentPreset'] = newPreset % maxPreset
+            log.debug('Preset is now ' + str(preset))
+            self.net.sendPreset(objId, preset)
+        elif 'params' in data[0]:
+            self.net.sendParams(data, GameMode.instrument)

@@ -93,6 +93,12 @@ class Network(object):
         self._msg.append(state)
         self.sendOsc(self._msg)
 
+    def sendPreset(self, objId, preset):
+        self._msg.append(objId)
+        self._msg.append(1)
+        self._msg.append(preset)
+        self.sendOsc(self._msg)
+
     def sendAllObjectStates(self, instrument):
         ''' Send the object state of all objects at once '''
         for i, inst in enumerate(instrument):
