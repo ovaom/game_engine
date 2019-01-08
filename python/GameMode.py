@@ -13,7 +13,7 @@ class GameMode(object):
 
     instrument = [ {
             'active': 0, 
-            'maxPreset': 5, 
+            'maxPreset': 4, 
             'currentPreset': 0,
             'lastSeen': -1,
             } for i in range(0, 4) ]
