@@ -8,6 +8,7 @@
 - reset preset number of all objects when switching game modes
 - choose preset number for each puzzle
 - preset-1 is now default preset, preset-0 = silence
+- add long press functionnality to change difficulty
 
 ## [1.0.0] 2018-09-01
 
