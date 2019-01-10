@@ -46,6 +46,9 @@ class Button(Observer):
             puzzle.stopAudio()
             puzzle.incrementLevel()
 
+    def changeDifficulty(self, data):
+        puzzle.toggleDifficulty()
+
 def getInputs():
     val1 = GPIO.getPuzzleButton()
     if val1 != None:
@@ -53,6 +56,8 @@ def getInputs():
     val2 = GPIO.getJungleButton()
     if val2 != None:
         Event('jungleClick', val2)
+    if val2 == LONG_PRESS:
+        Event('changeDifficulty', val2)
     val3 = GPIO.getRepeatButton()
     if val3 != None:
         Event('repeatClick', val3)
@@ -97,6 +102,8 @@ if __name__ == '__main__':
     btn.observe('jungleClick', btn.jungleClick)
     btn.observe('repeatClick', btn.repeatClick)
     btn.observe('skipClick', btn.skipClick)
+    btn.observe('changeDifficulty', btn.changeDifficulty)
+
 
     Event('jungleClick', 0)
 

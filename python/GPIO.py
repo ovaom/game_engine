@@ -2,7 +2,7 @@ import time
 import Adafruit_ADS1x15
 import RPi.GPIO as GPIO
 from logger import log
-from CONST import ON, OFF
+from CONST import *
 
 # GPIO Pin definitions
 LED_STARTUP = 26
@@ -30,6 +30,8 @@ class InOut(object):
             "prev": 0,
             "curr": 0
         }
+        self.jungle_press_time = 0
+        self.prevJungle = 0
         self.prevRepeat = 0
         self.prevSkip = 0
         self._prevLedBlink = 0
@@ -108,8 +110,15 @@ class InOut(object):
             return True
 
     def getJungleButton(self):
-        if GPIO.input(BTN_JUNGLE):
-            return True
+        value = GPIO.input(BTN_JUNGLE)
+        if value != self.prevJungle:
+            self.jungle_press_time = time.time()
+            self.prevJungle = value
+            return value
+        elif value and value == self.prevJungle:
+            if (time.time() - self.jungle_press_time) > LONG_PRESS_TIME:
+                self.jungle_press_time = time.time()
+                return LONG_PRESS        
 
     def getRepeatButton(self):
         value = GPIO.input(BTN_REPEAT)

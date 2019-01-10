@@ -25,6 +25,7 @@ class Puzzle(GameMode):
                     'data': []
         }
         self._importJSON();
+        self._difficulty = EASY
         
         self._callbackDict = {
             'speakPuzzleModeCallback': self._speakPuzzleModeCallback,
@@ -81,6 +82,18 @@ class Puzzle(GameMode):
         self.levelNum = 0
         for i in GameMode.instrument:
             i['currentPreset'] = 0
+    
+    def toggleDifficulty(self):
+        if self._difficulty == EASY:
+            log.debug('setting difficulty to NORMAL')
+            self._difficulty = NORMAL
+        elif self._difficulty == NORMAL:
+            log.debug('setting difficulty to EASY')
+            self._difficulty = EASY
+        for i in GameMode.instrument:
+            i['maxPreset'] = self._difficulty
+            i['currentPreset'] = 0
+        
 
 # ================================================================================
 # ================================================================================
@@ -128,6 +141,8 @@ class Puzzle(GameMode):
         obj = self.puzzleData[self.levelNum][0]['objectId']
         preset = self.puzzleData[self.levelNum][0]['preset']
         GameMode.instrument[obj]['currentPreset'] = preset
+        for i in GameMode.instrument:
+            i['currentPreset'] = preset            
         self.step = SPEAK_LISTEN_EXAMPLE
         self._audio.instructionsPlaying = False
 
@@ -162,7 +177,7 @@ class Puzzle(GameMode):
             for i in range(len(answer[0]['values'])):
                 output.append(answer[0]['values'][i])
             self.net.sendEmulatedParams(output)
-        if self._startTime and (time.time() - self._startTime) > 7:
+        if self._startTime and (time.time() - self._startTime) > 6:
             log.debug('finished playing')
             self._startTime = None
             self.step = SPEAK_INSTRUCTIONS

@@ -12,6 +12,10 @@ ASSETS_FOLDER = '/home/pi/Documents/ovaom/python/assets/'
 # GPIO
 OFF = 0
 ON  = 1
+SHORT_PRESS = 2
+LONG_PRESS  = 3
+
+LONG_PRESS_TIME = 2 # time in seconds
 
 # Jungle mode steps
 SPEAK_JUNGLE_MODE = 0
@@ -25,3 +29,7 @@ EMULATE_INSTRUMENT      = 3
 SPEAK_INSTRUCTIONS      = 4
 PLAY_LEVEL              = 5
 WAIT_USER_INPUT         = 6
+
+# max number of presets
+EASY = 2
+NORMAL = 4

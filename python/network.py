@@ -104,7 +104,8 @@ class Network(object):
         for i, inst in enumerate(instrument):
             self._msg.append(i)
             self._msg.append(inst["active"])
-            for k in range(5):
+            self._msg.append(inst["currentPreset"])
+            for k in range(4):
                 self._msg.append(0)
             self.sendOsc(self._msg)
 
