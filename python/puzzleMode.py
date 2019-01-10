@@ -125,6 +125,9 @@ class Puzzle(GameMode):
                 args=(path, 'speakLevelNumberCallback',)).start()
 
     def _speakLevelNumberCallback(self):
+        obj = self.puzzleData[self.levelNum][0]['objectId']
+        preset = self.puzzleData[self.levelNum][0]['preset']
+        GameMode.instrument[obj]['currentPreset'] = preset
         self.step = SPEAK_LISTEN_EXAMPLE
         self._audio.instructionsPlaying = False
 
@@ -144,9 +147,6 @@ class Puzzle(GameMode):
         self._audio.instructionsPlaying = False
 
     def _emulateInstrument(self, data):
-        # if data and 'state' in data[0]:
-        #     objId = int(data[0][8])
-        #     GameMode.instrument[objId]["active"] = data[2]
         if not self._audio.instructionsPlaying:
             self._audio.instructionsPlaying = True
             self.gpio.setRepeatLED(ON)
@@ -155,9 +155,10 @@ class Puzzle(GameMode):
             log.info( '-- audio: play model :D ' )
             output = []
             answer = self.puzzleData[self.levelNum]
+            preset = answer[0]['preset']
             output.append(answer[0]['objectId'])
             output.append(1) # state = active
-            output.append(0) # preset = 0
+            output.append(preset) # preset = 0
             for i in range(len(answer[0]['values'])):
                 output.append(answer[0]['values'][i])
             self.net.sendEmulatedParams(output)
@@ -213,7 +214,7 @@ class Puzzle(GameMode):
         if len(answer[0]['values']) != len(self.params['data']):
             log.info(('Validation Error: number of parameters does not match JSON file'))
             self._failure()
-            return 
+            return
         for i in range(len(answer[0]['values'])):
             min = answer[0]['values'][i] - answer[0]['tolerance'][i]
             max = answer[0]['values'][i] + answer[0]['tolerance'][i]
