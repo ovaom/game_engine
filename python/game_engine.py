@@ -6,6 +6,7 @@ import logging
 import threading
 import socket
 import time
+from subprocess import call
 
 from CONST import *
 import network
@@ -49,18 +50,30 @@ class Button(Observer):
     def changeDifficulty(self, data):
         puzzle.toggleDifficulty()
 
+    def shutdown(self, data):
+        GPIO.setStartupLed(OFF)
+        call("sudo nohup shutdown -h now", shell=True)
+
+    def resetWifi(self, data):
+        log.debug('reset wifi')
+        call("sudo ifconfig wlan0 down && sudo ifconfig wlan0 up", shell=True)
+
 def getInputs():
     val1 = GPIO.getPuzzleButton()
     if val1 != None:
         Event('puzzleClick', val1)
+    if val1 == LONG_PRESS:
+        Event('shutdown', None)
     val2 = GPIO.getJungleButton()
     if val2 != None:
         Event('jungleClick', val2)
     if val2 == LONG_PRESS:
-        Event('changeDifficulty', val2)
+        Event('changeDifficulty', None)
     val3 = GPIO.getRepeatButton()
     if val3 != None:
         Event('repeatClick', val3)
+    if val3 == LONG_PRESS:
+        Event('resetWifi', None)
     val4 = GPIO.getSkipButton()
     if val4 != None:
         Event('skipClick', val4)
@@ -89,13 +102,16 @@ if __name__ == '__main__':
     logging.basicConfig(filename='/home/pi/Documents/ovaom/logs/game_engine.log', level=logging.DEBUG)
     log.info('==========================================================')
     log.info('Starting up')
+    
+    game = {'mode': JUNGLE,}
 
-    game = {'mode': JUNGLE,}    
     net = network.Network()
     GPIO = GPIO.InOut(game)
+
     v = volume.VolumeCtrl(GPIO)
     jungle = jungleMode.Jungle(net)
     puzzle = puzzleMode.Puzzle(net, GPIO)
+    
 
     btn = Button()
     btn.observe('puzzleClick', btn.puzzleClick)
@@ -103,7 +119,9 @@ if __name__ == '__main__':
     btn.observe('repeatClick', btn.repeatClick)
     btn.observe('skipClick', btn.skipClick)
     btn.observe('changeDifficulty', btn.changeDifficulty)
-
+    btn.observe('shutdown', btn.shutdown)
+    btn.observe('resetWifi', btn.resetWifi)
+    
 
     Event('jungleClick', 0)
 

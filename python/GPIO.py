@@ -31,7 +31,9 @@ class InOut(object):
             "curr": 0
         }
         self.jungle_press_time = 0
+        self.puzzle_press_time = 0
         self.prevJungle = 0
+        self.prevPuzzle = 0
         self.prevRepeat = 0
         self.prevSkip = 0
         self._prevLedBlink = 0
@@ -69,7 +71,7 @@ class InOut(object):
         GPIO.setup(BTN_REPEAT,   GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
         GPIO.setup(BTN_SKIP,     GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
         # Set startup LED off:
-        GPIO.output(LED_STARTUP, GPIO.HIGH)
+        # GPIO.output(LED_STARTUP, GPIO.HIGH)
         
     def _readADC(self):
         values = [0]*4
@@ -106,8 +108,15 @@ class InOut(object):
             return value
 
     def getPuzzleButton(self):
-        if GPIO.input(BTN_PUZZLE):
-            return True
+        value = GPIO.input(BTN_PUZZLE)
+        if value != self.prevPuzzle:
+            self.puzzle_press_time = time.time()
+            self.prevPuzzle = value
+            return value
+        elif value and value == self.prevPuzzle:
+            if (time.time() - self.puzzle_press_time) > LONG_PRESS_TIME:
+                self.puzzle_press_time = time.time()
+                return LONG_PRESS
 
     def getJungleButton(self):
         value = GPIO.input(BTN_JUNGLE)
@@ -123,8 +132,13 @@ class InOut(object):
     def getRepeatButton(self):
         value = GPIO.input(BTN_REPEAT)
         if value != self.prevRepeat:
+            self.repeat_press_time = time.time()
             self.prevRepeat = value
             return value
+        elif value and value == self.prevRepeat:
+            if (time.time() - self.repeat_press_time) > LONG_PRESS_TIME:
+                self.repeat_press_time = time.time()
+                return LONG_PRESS
         return None
         
     def getSkipButton(self):
@@ -136,6 +150,12 @@ class InOut(object):
     # ------------------------------------------------------------------------- 
     # LED control
     # -------------------------------------------------------------------------
+
+    def setStartupLed(self, status):
+        if status == 1:
+            GPIO.output(LED_STARTUP, GPIO.LOW)
+        elif status == 0:
+            GPIO.output(LED_STARTUP, GPIO.HIGH)
 
     def setPuzzleLedON(self):
         GPIO.output(LED_JUNGLE, GPIO.HIGH)
