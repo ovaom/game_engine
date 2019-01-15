@@ -22,6 +22,7 @@ class Puzzle(GameMode):
         self.totalLevels = 1
         self.step = SPEAK_PUZZLE_MODE
         self.params = {
+                    'objectId': None,
                     'data': []
         }
         self._importJSON();
@@ -191,7 +192,7 @@ class Puzzle(GameMode):
             log.info( '-- speak: Instructions audio! ' )
             path = self.audioPaths[self.levelNum]
             threading.Thread(
-                target=self._audio.playback, 
+                target=self._audio.playback,
                 args=(path, 'speakInstructionsCallback',)).start()
     
     def _speakInstructionsCallback(self):
@@ -213,6 +214,7 @@ class Puzzle(GameMode):
             objId = int(data[0][8])
             self.net.sendState(objId, GameMode.instrument[objId]["active"])
         elif 'presetChange' in data[0]:
+            self.params['objectId'] = int(data[0][8])
             self._validateLevel()
 
 # ================================================================================

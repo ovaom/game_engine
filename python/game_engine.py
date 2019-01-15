@@ -80,10 +80,13 @@ def getInputs():
 
 def getOscData():
     ''' Receive OSC data from objects and puredata and store it into a 'data'
-    variable that is passed down '''
+    variable that is passed down.
+    '/ping' contains: objectId, objectState, batteryLvl
+    
+    '''
     try:
         data = net.receiveOsc()
-        if not 'ping' in data[0] and not 'battery' in data[0] :
+        if not 'ping' in data[0]:
             log.debug('Incoming Data: %s', data)
     except socket.error as e:
         return None
@@ -96,7 +99,7 @@ def updateGame(oscData):
     elif game['mode'] == PUZZLE:
         puzzle.run(oscData)
 
-if __name__ == '__main__': 
+if __name__ == '__main__':
     log = logging.getLogger('ovaom')
     logging.getLogger('Adafruit_I2C.Device.Bus.1.Address.0X48').setLevel(logging.WARNING)
     logging.basicConfig(filename='/home/pi/Documents/ovaom/logs/game_engine.log', level=logging.DEBUG)
