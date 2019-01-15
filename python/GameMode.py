@@ -16,8 +16,10 @@ class GameMode(object):
             'maxPreset': 2, 
             'currentPreset': 0,
             'lastSeen': -1,
+            'battery': 0,
             } for i in range(0, 4) ]
     prev_offline_objects = []
+    prevMonitoring = 0
 
     def __init__(self, net):
         self.net = net
@@ -28,6 +30,8 @@ class GameMode(object):
     def run(self, data):
         self._storeObjectsState(data)
         self._killOfflineObjects(data)
+        self._getBatteryLevels(data)
+        self._ObjectsMonitoringLog()
 
     def _killOfflineObjects(self, data):
         offline_objects = []
@@ -56,3 +60,19 @@ class GameMode(object):
                 log.debug('Notice: object state %d out of sync, resync', objId)
                 self.net.sendState(objId, state)
                 GameMode.instrument[objId]['active'] = state
+
+    def _getBatteryLevels(self, data):
+        if data and 'ping' in data[0]:
+            objId = int(data[2])
+            GameMode.instrument[objId]["battery"] = data[4]
+
+    def _ObjectsMonitoringLog(self):
+        if (time.time() - GameMode.prevMonitoring) > 10:
+            out  = 'BATTERY: '
+            levels = [0, 0, 0, 0]
+            for i, inst in enumerate(GameMode.instrument):
+                levels[i] = inst['battery']
+            
+            log.debug('BATTERY: grelot:%d \t ocarina:%d \t bolstick:%d \t corail:%d', levels[0], levels[1], levels[2], levels[3])
+            GameMode.prevMonitoring = time.time()
+
