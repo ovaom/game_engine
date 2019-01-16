@@ -1,6 +1,9 @@
 # Ovaom Game Engine Changelog
 
 ## [Unreleased]
+
+
+## [2.0.0] 2019-01-16
 ### Added
 - create this changelog
 - send msg to sound engine on preset change
@@ -10,6 +13,7 @@
 - preset-1 is now default preset, preset-0 = silence
 - add long press functionnality to `jungle` button to change difficulty
 - add long press for shutdown and restart wifi
+- battery logging
 
 ## [1.0.0] 2018-09-01
 
