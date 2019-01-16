@@ -1,8 +1,8 @@
 # 
 # game_engine.py
 # 
-
 import logging
+from logger import log
 import threading
 import socket
 import time
@@ -100,7 +100,7 @@ def updateGame(oscData):
         puzzle.run(oscData)
 
 if __name__ == '__main__':
-    log = logging.getLogger('ovaom')
+    # log = logging.getLogger('ovaom')
     logging.getLogger('Adafruit_I2C.Device.Bus.1.Address.0X48').setLevel(logging.WARNING)
     logging.basicConfig(filename='/home/pi/Documents/ovaom/logs/game_engine.log', 
                         level=logging.DEBUG)

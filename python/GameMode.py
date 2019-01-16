@@ -2,9 +2,13 @@
 # GameMode Class
 # ============================================================================
 
-from logger import log
+from logger import logging, log
 import time
 from AudioPlay import AudioPlay
+
+battLog = logging.getLogger('BATTERY')
+batt_handler = logging.FileHandler('/home/pi/Documents/ovaom/logs/battery_monitor.log')
+battLog.addHandler(batt_handler)
 
 INACTIVE_THRESHOLD = 5 # in seconds
 
@@ -73,6 +77,5 @@ class GameMode(object):
             for i, inst in enumerate(GameMode.instrument):
                 levels[i] = inst['battery']
             
-            log.debug('BATTERY: grelot:%d \t ocarina:%d \t bolstick:%d \t corail:%d', levels[0], levels[1], levels[2], levels[3])
+            battLog.info('grelot:%d | ocarina:%d | bolstick:%d | corail:%d', levels[0], levels[1], levels[2], levels[3])
             GameMode.prevMonitoring = time.time()
-
