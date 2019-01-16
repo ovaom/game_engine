@@ -31,5 +31,5 @@ PLAY_LEVEL              = 5
 WAIT_USER_INPUT         = 6
 
 # max number of presets
-EASY = 2
+EASY = 1
 NORMAL = 4

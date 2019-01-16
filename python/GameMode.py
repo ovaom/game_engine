@@ -17,7 +17,7 @@ class GameMode(object):
 
     instrument = [ {
             'active': 0, 
-            'maxPreset': 2, 
+            'maxPreset': 1, 
             'currentPreset': 0,
             'lastSeen': -1,
             'battery': 0,
