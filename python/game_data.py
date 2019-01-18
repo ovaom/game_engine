@@ -5,7 +5,7 @@ data = [
   [ # Puzzle 1:
     { # Success condition 1:
       "objectId": 1,
-      "preset": 1,
+      "preset": 0,
       "tolerance": [
         1,
         1,
@@ -24,7 +24,7 @@ data = [
   [ # Puzzle 2 :
     { # Success condition 1:
       "objectId": 1,
-      "preset": 1,
+      "preset": 0,
       "tolerance": [
         0,
         0,
@@ -43,7 +43,7 @@ data = [
   [ # Puzzle 3 :
     { # Success condition 1:
       "objectId": 1,
-      "preset": 1,
+      "preset": 0,
       "tolerance": [
         0,
         0,
@@ -62,7 +62,7 @@ data = [
   [ # Puzzle 4 :
     { # Success condition 1:
       "objectId": 0,
-      "preset": 1,
+      "preset": 0,
       "tolerance": [
         1.0,
         1.0,
@@ -79,7 +79,7 @@ data = [
   [ # Puzzle 5 :
     { # Success condition 1:
       "objectId": 0,
-      "preset": 1,
+      "preset": 0,
       "tolerance": [
         1.0,
         0.2,
@@ -96,7 +96,7 @@ data = [
   [ # Puzzle 6 :
     { # Success condition 1:
       "objectId": 0,
-      "preset": 1,
+      "preset": 0,
       "tolerance": [
         1.0,
         0.2,
@@ -113,7 +113,7 @@ data = [
   [ # Puzzle 7 :
     { # Success condition 1:
       "objectId": 3,
-      "preset": 1,
+      "preset": 0,
       "tolerance": [
         1.0,
         1.0,
@@ -130,7 +130,7 @@ data = [
   [ # Puzzle 8 :
     { # Success condition 1:
       "objectId": 3,
-      "preset": 1,
+      "preset": 0,
       "tolerance": [
         0.2,
         0.2,
@@ -147,7 +147,7 @@ data = [
   [ # Puzzle 9 :
     { # Success condition 1:
       "objectId": 3,
-      "preset": 1,
+      "preset": 0,
       "tolerance": [
         0.2,
         0.2,
@@ -164,7 +164,7 @@ data = [
   [ # Puzzle 10 :
     { # Success condition 1:
       "objectId": 3,
-      "preset": 1,
+      "preset": 0,
       "tolerance": [
         0.2,
         0.2,
@@ -181,15 +181,15 @@ data = [
   [ # Puzzle 11 :
     { # Success condition 1:
       "objectId": 2,
-      "preset": 1,
+      "preset": 0,
       "tolerance": [
         1,
         1,
         1
       ],
       "values": [
-        0,
-        0,
+        0.5,
+        0.5,
         0
       ]
     }
@@ -198,7 +198,7 @@ data = [
   [ # Puzzle 12 :
     { # Success condition 1:
       "objectId": 2,
-      "preset": 1,
+      "preset": 0,
       "tolerance": [
         1,
         1,
@@ -215,7 +215,7 @@ data = [
   [ # Puzzle 13 :
     { # Success condition 1:
       "objectId": 2,
-      "preset": 1,
+      "preset": 0,
       "tolerance": [
         0.2,
         1.0,
